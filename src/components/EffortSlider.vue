@@ -48,7 +48,6 @@
         <div class="header-left">
           <span class="label-text">Effort</span>
           <span
-            ref="statusTextRef"
             class="status-text"
             :class="{
               glowing: isActive,
@@ -81,9 +80,8 @@
       </div>
 
       <div
-        ref="trackWrapperRef"
         class="track-wrapper"
-        :class="{ active: isActive }"
+        :class="{ active: isActive, full: isFull }"
         :style="trackClip"
       >
         <div class="track-bg"></div>
@@ -94,8 +92,10 @@
           <span class="dot"></span>
           <span class="dot"></span>
         </div>
-        <canvas ref="canvasRef"></canvas>
-        <div class="right-black" :style="{ left: sliderValue + '%' }"></div>
+        <canvas
+          ref="canvasRef"
+          :style="canvasMask"
+        ></canvas>
         <input
           type="range"
           min="0"
@@ -112,7 +112,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 
-const ULTRA = 96
+const ULTRA = 100
 const sliderValue = ref(70)
 const ultraStart = ref(null)
 const isAnimating = ref(false)
@@ -124,6 +124,7 @@ const cardClip = computed(() => ({ clipPath: `url(#${clipId})` }))
 const trackClip = computed(() => ({ clipPath: `url(#${clipTrackId})` }))
 
 const isActive = computed(() => sliderValue.value >= ULTRA)
+const isFull = computed(() => sliderValue.value === 100)
 
 const statusLabel = computed(() => {
   const v = sliderValue.value
@@ -133,9 +134,15 @@ const statusLabel = computed(() => {
   return 'Ultracode'
 })
 
-const trackWrapperRef = ref(null)
+const canvasMask = computed(() => {
+  const p = Math.min(sliderValue.value + 2, 100)
+  return {
+    maskImage: `linear-gradient(to right, black 0%, black ${p}%, transparent ${p}%)`,
+    WebkitMaskImage: `linear-gradient(to right, black 0%, black ${p}%, transparent ${p}%)`,
+  }
+})
+
 const canvasRef = ref(null)
-const statusTextRef = ref(null)
 
 let animationTimer = null
 
@@ -164,6 +171,7 @@ watch(statusLabel, (newVal, oldVal) => {
   }
 })
 
+// 关键修复：使用 nextTick 确保 DOM 更新后再启动渲染循环
 watch(isActive, (now) => {
   if (now && ultraStart.value === null) {
     ultraStart.value = performance.now()
@@ -171,7 +179,7 @@ watch(isActive, (now) => {
     ultraStart.value = null
   }
   if (now) {
-    ensureRenderLoop()
+    nextTick(() => ensureRenderLoop())
   }
 })
 
@@ -185,7 +193,6 @@ let rafId = null
 let bootstrapRafId = null
 let resizeTimer = null
 let resizeHandler = null
-let ensureRenderLoopTimer = null
 
 let simProg = null
 let blurProg = null
@@ -244,7 +251,6 @@ function destroyAllWebGLResources() {
   if (rafId) { cancelAnimationFrame(rafId); rafId = null }
   if (bootstrapRafId) { cancelAnimationFrame(bootstrapRafId); bootstrapRafId = null }
   if (resizeTimer) { clearTimeout(resizeTimer); resizeTimer = null }
-  if (ensureRenderLoopTimer) { clearTimeout(ensureRenderLoopTimer); ensureRenderLoopTimer = null }
   if (resizeHandler) {
     window.removeEventListener('resize', resizeHandler)
     resizeHandler = null
@@ -774,13 +780,17 @@ canvas {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  display: none;
+  /* 关键修复：用 opacity 代替 display: none，保持 canvas 始终占据布局空间 */
+  opacity: 0;
   mix-blend-mode: screen;
   z-index: 2;
+  transition: opacity 0.2s ease;
 }
 
 .track-wrapper.active canvas {
-  display: block;
+  /* 激活时显示 canvas */
+  opacity: 1;
+  z-index: 4;
 }
 
 .dots-layer {
@@ -805,21 +815,15 @@ canvas {
   opacity: 0.25;
 }
 
+.track-wrapper.full .dot {
+  opacity: 0 ;
+}
+
 .dot:nth-child(1) { left: 10%; }
 .dot:nth-child(2) { left: 30%; }
 .dot:nth-child(3) { left: 50%; }
 .dot:nth-child(4) { left: 70%; }
 .dot:nth-child(5) { left: 90%; }
-
-.right-black {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  background: #000000;
-  pointer-events: none;
-  z-index: 3;
-}
 
 input[type='range'] {
   position: absolute;
@@ -838,8 +842,8 @@ input[type='range'] {
 
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 28px;
-  height: 28px;
+  width: 29px;
+  height: 29px;
   border-radius: 10px;
   background: linear-gradient(170deg, #ffffff 0%, #f0f0f2 40%, #e4e4e6 100%);
   border: 0.5px solid rgba(0, 0, 0, 0.08);

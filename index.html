@@ -1,13 +1,673 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>vite-project</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue Effort Slider — 组件配置</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #09090b;
+      --strip: #131316;
+      --strip-alt: #1a1a1f;
+      --border: #27272d;
+      --text: #eeeeef;
+      --text-2: #a1a1a9;
+      --text-3: #71717a;
+      --accent: #a78bfa;
+      --accent-dim: rgba(167, 139, 250, 0.12);
+    }
+
+    body {
+      font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---- layout ---- */
+    .page {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      min-height: 100dvh;
+    }
+
+    @media (max-width: 960px) {
+      .page { grid-template-columns: 1fr; }
+      .preview-pane { position: relative; height: auto; min-height: 340px; }
+      .config-pane { max-height: none; }
+    }
+
+    /* ---- preview ---- */
+    .preview-pane {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 64px 32px 96px;
+      background:
+        linear-gradient(rgba(167,139,250,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(167,139,250,0.03) 1px, transparent 1px),
+        var(--strip);
+      background-size: 40px 40px, 40px 40px, 100% 100%;
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    .preview-pane::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(167,139,250,0.015) 2px,
+        rgba(167,139,250,0.015) 4px
+      );
+      pointer-events: none;
+    }
+
+    .preview-pane::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 160px;
+      background: linear-gradient(0deg, rgba(167,139,250,0.04), transparent);
+      pointer-events: none;
+    }
+
+    .preview-label {
+      position: absolute;
+      top: 20px;
+      left: 24px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    /* ---- config ---- */
+    .config-pane {
+      display: flex;
+      flex-direction: column;
+      max-height: 100dvh;
+    }
+
+    /* ---- nav ---- */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      gap: 0;
+      background: var(--strip-alt);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      flex-shrink: 0;
+    }
+
+    .nav-item {
+      padding: 12px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-2);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+      font-family: 'Noto Sans SC', sans-serif;
+    }
+
+    .nav-item:hover {
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      color: #fff;
+      border-bottom-color: var(--accent);
+    }
+
+    /* ---- content ---- */
+    .config-content {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .pane-header {
+      padding: 16px 40px 12px;
+    }
+
+    .page-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 1px;
+    }
+
+    .page-sub {
+      font-size: 11px;
+      color: var(--text-2);
+    }
+
+    /* ---- strip section ---- */
+    .strip {
+      border-top: 1px solid var(--border);
+    }
+
+    .strip-head {
+      padding: 16px 40px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--strip-alt);
+      letter-spacing: 0.02em;
+    }
+
+    /* ---- field row ---- */
+    .field {
+      display: flex;
+      align-items: center;
+      padding: 13px 40px;
+      gap: 16px;
+      border-top: 1px solid var(--border);
+      background: var(--strip);
+    }
+
+    .field:hover {
+      background: var(--strip-alt);
+    }
+
+    .field-label {
+      width: 90px;
+      flex-shrink: 0;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .field-input {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .field-hint {
+      font-size: 12px;
+      color: var(--text-2);
+      flex-shrink: 0;
+    }
+
+    /* ---- inputs ---- */
+    input[type="text"],
+    input[type="number"] {
+      background: var(--strip-alt);
+      border: 1px solid #333339;
+      border-radius: 6px;
+      padding: 7px 10px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: 'Geist Mono', monospace;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      width: 100%;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    input[type="text"]:hover,
+    input[type="number"]:hover {
+      border-color: #4a4a52;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-dim), 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    input[type="number"] { width: 80px; flex-shrink: 0; }
+
+    input[type="color"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border: 1px solid #333339;
+      border-radius: 6px;
+      cursor: pointer;
+      background: none;
+      transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+      flex-shrink: 0;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    input[type="color"]:hover { border-color: #3d3d44; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+    input[type="color"]:active { transform: scale(0.93); }
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 3px; background: repeating-conic-gradient(#444450 0% 25%, #2a2a32 0% 50%) 50% / 8px 8px; }
+    input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
+
+    .sep {
+      width: 1px;
+      height: 18px;
+      background: #3a3a42;
+      flex-shrink: 0;
+    }
+
+    /* ---- checkbox ---- */
+    .check-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .check-wrap input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .check-wrap span {
+      font-size: 13px;
+      color: var(--text);
+      user-select: none;
+    }
+
+    /* ---- status grid ---- */
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      width: 100%;
+    }
+
+    .status-grid input {
+      font-size: 12px;
+      padding: 6px 4px;
+      text-align: center;
+      font-family: 'Geist Mono', monospace;
+    }
+
+    /* ---- code block ---- */
+    .code-strip {
+      border-top: 1px solid var(--border);
+      background: var(--strip);
+    }
+
+    .code-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 40px;
+      background: var(--strip-alt);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-head-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-2);
+    }
+
+    .copy-btn {
+      font-family: 'Noto Sans SC', sans-serif;
+      background: var(--strip-alt);
+      border: 1px solid #333339;
+      border-radius: 6px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .copy-btn:hover {
+      background: var(--strip-alt);
+      color: var(--text);
+      border-color: #4a4a52;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .copy-btn:active { transform: scale(0.97); }
+
+    pre {
+      padding: 16px 40px;
+      overflow-x: auto;
+      font-size: 12px;
+      line-height: 1.8;
+      font-family: 'Geist Mono', monospace;
+      color: var(--text);
+      tab-size: 2;
+    }
+
+    pre .kw { color: #c084fc; }
+    pre .tag { color: #f472b6; }
+    pre .attr { color: #67e8f9; }
+    pre .str { color: #34d399; }
+    pre .num { color: #fbbf24; }
+    pre .punc { color: #636369; }
+    pre .cmt { color: #7a7a84; font-style: italic; }
+
+    /* ---- scrollbar ---- */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #3a3a42; border-radius: 2px; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { createApp, reactive, ref, h, nextTick } from 'vue'
+    import EffortSlider from './src/components/EffortSlider.vue'
+
+    const S = reactive({
+      modelValue: 75,
+      width: 376,
+      label: 'Slider',
+      threshold: 100,
+      scaleLabels: ['Faster', 'Smarter'],
+      statusLabels: { level1: 'Minimal', level2: 'Low', level3: 'Medium', level4: 'High', level5: 'Max' },
+      background: '#000000',
+      borderRadius: 20,
+      showHelp: true,
+      helpText: '这是一个 Effort 滑块组件',
+      labelColor: '#b0b0c7',
+      statusColor: '#a1a1aa',
+      activeColor: '#c084fc',
+      scaleLabelColor: '#b0b0b8',
+      helpIconColor: '#a1a1aa',
+      trailColor: '#a857f7',
+      thumbColor: '#ffffff',
+      highlightColor: '#c084fc',
+      trackColor: '#0c0c0c',
+      dotColor: '#494950',
+    })
+
+    function genCode() {
+      const L = []
+      L.push('<!-- 框架: Vue 3 + <script setup> -->')
+      L.push('<!-- 安装: npm install vue-effort-slider -->')
+      L.push('<template>')
+      L.push('  <EffortSlider v-model="value"')
+      if (S.width !== 376) L.push(`    :width="${S.width}"`)
+      if (S.label !== 'Slider') L.push(`    label="${S.label}"`)
+      if (S.threshold !== 100) L.push(`    :threshold="${S.threshold}"`)
+      if (S.scaleLabels[0] !== 'Faster' || S.scaleLabels[1] !== 'Smarter')
+        L.push(`    :scale-labels="['${S.scaleLabels[0]}', '${S.scaleLabels[1]}']"`)
+      if (JSON.stringify(S.statusLabels) !== JSON.stringify({ level1:'Minimal',level2:'Low',level3:'Medium',level4:'High',level5:'Max' })) {
+        L.push('    :status-labels="{')
+        for (const [k,v] of Object.entries(S.statusLabels)) L.push(`      ${k}: '${v}',`)
+        L.push('    }"')
+      }
+      if (S.background !== '#000000') L.push(`    background="${S.background}"`)
+      if (S.borderRadius !== 20) L.push(`    :border-radius="${S.borderRadius}"`)
+      if (!S.showHelp) L.push(`    :show-help="false"`)
+      if (S.helpText !== '这是一个 Effort 滑块组件') L.push(`    help-text="${S.helpText}"`)
+      if (S.labelColor !== '#b0b0c7') L.push(`    label-color="${S.labelColor}"`)
+      if (S.statusColor !== '#a1a1aa') L.push(`    status-color="${S.statusColor}"`)
+      if (S.activeColor !== '#c084fc') L.push(`    active-color="${S.activeColor}"`)
+      if (S.scaleLabelColor !== '#b0b0b8') L.push(`    scale-label-color="${S.scaleLabelColor}"`)
+      if (S.helpIconColor !== '#a1a1aa') L.push(`    help-icon-color="${S.helpIconColor}"`)
+      if (S.trailColor !== '#a857f7') L.push(`    trail-color="${S.trailColor}"`)
+      if (S.thumbColor !== '#ffffff') L.push(`    thumb-color="${S.thumbColor}"`)
+      if (S.highlightColor !== '#c084fc') L.push(`    highlight-color="${S.highlightColor}"`)
+      if (S.trackColor !== '#0c0c0c') L.push(`    track-color="${S.trackColor}"`)
+      if (S.dotColor !== '#494950') L.push(`    dot-color="${S.dotColor}"`)
+      L.push('  />')
+      L.push('</template>')
+      L.push('')
+      L.push('<script setup>')
+      L.push("import { ref } from 'vue'")
+      L.push("import { EffortSlider } from 'vue-effort-slider'")
+      L.push("import 'vue-effort-slider/style.css'")
+      L.push('')
+      L.push(`const value = ref(${S.modelValue})`)
+      L.push('<\/script>')
+      return L.join('\n')
+    }
+
+    /* ---- helpers ---- */
+    const field = (lbl, ...kids) => h('div', { class: 'field' }, [
+      h('div', { class: 'field-label' }, lbl),
+      h('div', { class: 'field-input' }, kids)
+    ])
+
+    const num = (key, min, max) => h('input', {
+      type: 'number', min, max, value: S[key],
+      onInput(e) { S[key] = +e.target.value; paintCode() }
+    })
+
+    const txt = (key, w) => h('input', {
+      type: 'text', value: S[key],
+      style: w ? { width: w } : {},
+      onInput(e) { S[key] = e.target.value; paintCode() }
+    })
+
+    const clr = (key) => h('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } }, [
+      h('input', {
+        type: 'color', value: S[key],
+        onInput(e) { S[key] = e.target.value; paintCode() }
+      }),
+      h('span', {
+        style: {
+          fontSize: '11px', fontFamily: "'Geist Mono', monospace",
+          color: '#a1a1a9', minWidth: '60px',
+        }
+      }, S[key]),
+    ])
+
+    const chk = (key, lbl) => h('label', { class: 'check-wrap' }, [
+      h('input', {
+        type: 'checkbox', checked: S[key],
+        onChange(e) { S[key] = e.target.checked; paintCode() }
+      }),
+      h('span', null, lbl)
+    ])
+
+    const sep = () => h('div', { class: 'sep' })
+
+    const strip = (title, ...rows) => h('div', { class: 'strip' }, [
+      h('div', { class: 'strip-head' }, title),
+      ...rows
+    ])
+
+    /* ---- section builders ---- */
+    const sections = [
+      { key: 'basic', label: '基础', build: () => [
+        strip('基础设置',
+          field('当前值', num('modelValue', 0, 100)),
+          field('宽度', num('width', 200, 600)),
+          field('圆角', num('borderRadius', 0, 50)),
+          field('阈值', num('threshold', 0, 100)),
+        ),
+      ]},
+      { key: 'label', label: '标签', build: () => [
+        strip('标签',
+          field('标签文字', txt('label'), sep(), clr('labelColor')),
+        ),
+      ]},
+      { key: 'endpoint', label: '端点', build: () => [
+        strip('端点文字',
+          field('左侧',
+            h('input', {
+              type: 'text', value: S.scaleLabels[0],
+              onInput(e) { S.scaleLabels[0] = e.target.value; paintCode() }
+            }),
+          ),
+          field('右侧',
+            h('input', {
+              type: 'text', value: S.scaleLabels[1],
+              onInput(e) { S.scaleLabels[1] = e.target.value; paintCode() }
+            }),
+          ),
+          field('颜色', clr('scaleLabelColor')),
+        ),
+      ]},
+      { key: 'gear', label: '挡位', build: () => [
+        strip('挡位',
+          field('挡位名称',
+            h('div', { class: 'status-grid' }, Object.keys(S.statusLabels).map(k =>
+              h('input', {
+                type: 'text', value: S.statusLabels[k],
+                onInput(e) { S.statusLabels[k] = e.target.value; paintCode() }
+              })
+            )),
+            sep(), clr('statusColor')
+          ),
+          field('满挡文字色', clr('activeColor')),
+          field('滑块色', clr('thumbColor')),
+          field('轨道色', clr('trackColor')),
+          field('圆点色', clr('dotColor')),
+          field('高亮色', clr('highlightColor')),
+          field('拖尾色', clr('trailColor')),
+        ),
+      ]},
+      { key: 'help', label: '帮助', build: () => [
+        strip('帮助',
+          field('显示帮助', chk('showHelp', '启用'), sep(), clr('helpIconColor')),
+          field('帮助文字', txt('helpText')),
+        ),
+      ]},
+      { key: 'style', label: '外观', build: () => [
+        strip('外观',
+          field('背景色', clr('background'), txt('background', '80px')),
+        ),
+      ]},
+      { key: 'code', label: '代码', build: () => [
+        h('div', { class: 'code-strip' }, [
+          h('div', { class: 'code-head' }, [
+            h('span', { class: 'code-head-title' }, 'Vue 3 — 生成的代码'),
+            h('button', {
+              class: 'copy-btn',
+              onClick() {
+                navigator.clipboard.writeText(genCode())
+                const btn = document.querySelector('.copy-btn')
+                btn.textContent = '已复制'
+                setTimeout(() => btn.textContent = '复制', 1500)
+              }
+            }, '复制')
+          ]),
+          h('pre', { id: 'code-pre', innerHTML: highlight(genCode()) })
+        ])
+      ]},
+    ]
+
+    /* ---- mount ---- */
+    const root = createApp({
+      setup() {
+        const activeTab = ref('basic')
+
+        return () => h('div', { class: 'page' }, [
+          h('div', { class: 'preview-pane' }, [
+            h('div', { class: 'preview-label' }, '实时预览'),
+            h(EffortSlider, {
+              modelValue: S.modelValue,
+              'onUpdate:modelValue': v => { S.modelValue = v; paintCode() },
+              width: S.width, label: S.label, threshold: S.threshold,
+              scaleLabels: S.scaleLabels, statusLabels: S.statusLabels,
+              background: S.background, borderRadius: S.borderRadius,
+              showHelp: S.showHelp, helpText: S.helpText,
+              labelColor: S.labelColor, statusColor: S.statusColor,
+              activeColor: S.activeColor, highlightColor: S.highlightColor,
+              scaleLabelColor: S.scaleLabelColor,
+              helpIconColor: S.helpIconColor, trailColor: S.trailColor,
+              thumbColor: S.thumbColor, trackColor: S.trackColor,
+              dotColor: S.dotColor,
+            })
+          ]),
+          h('div', { class: 'config-pane' }, [
+            h('div', { class: 'pane-header' }, [
+              h('h1', { class: 'page-title' }, '组件配置'),
+              h('p', { class: 'page-sub' }, '调整参数，实时预览效果'),
+            ]),
+
+            h('nav', { class: 'nav' },
+              sections.map(s => h('button', {
+                class: ['nav-item', activeTab.value === s.key && 'active'],
+                onClick() {
+                  activeTab.value = s.key
+                  if (s.key === 'code') nextTick(paintCode)
+                }
+              }, s.label))
+            ),
+
+            h('div', { class: 'config-content' },
+              sections.find(s => s.key === activeTab.value).build()
+            )
+          ])
+        ])
+      }
+    })
+
+    root.mount('#app')
+
+    function highlight(code) {
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      const KW = /\b(import|from|const|ref|setup)\b/
+      const TAG = /^(&lt;\/?)(\w[\w-]*)/
+      const ATTR = /([\w-]+)(=)/
+      const STR_D = /"(?:[^"\\]|\\.)*"/
+      const STR_S = /'(?:[^'\\]|\\.)*'/
+      const NUM = /\b\d+\b/
+
+      return code.split('\n').map(line => {
+        let e = esc(line)
+        if (e.trim().startsWith('&lt;!--')) return `<span class="cmt">${e}</span>`
+
+        // tokenize: split by strings first to avoid inner matches
+        const parts = []
+        let rest = e
+        while (rest) {
+          let m = rest.match(STR_D) || rest.match(STR_S)
+          if (m && m.index === 0) {
+            parts.push(`<span class="str">${m[0]}</span>`)
+            rest = rest.slice(m[0].length)
+          } else if (m) {
+            parts.push(colorize(rest.slice(0, m.index)))
+            rest = rest.slice(m.index)
+          } else {
+            parts.push(colorize(rest))
+            rest = ''
+          }
+        }
+        return parts.join('')
+      }).join('\n')
+
+      function colorize(s) {
+        s = s.replace(TAG, '$1<span class="tag">$2</span>')
+        s = s.replace(ATTR, '<span class="attr">$1</span>$2')
+        s = s.replace(KW, '<span class="kw">$1</span>')
+        s = s.replace(NUM, '<span class="num">$&</span>')
+        return s
+      }
+    }
+
+    function paintCode() {
+      const el = document.getElementById('code-pre')
+      if (el) {
+        el.innerHTML = highlight(genCode())
+      }
+    }
+
+    paintCode()
+  </script>
+</body>
 </html>

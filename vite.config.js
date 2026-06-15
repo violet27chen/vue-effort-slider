@@ -12,7 +12,7 @@ export default defineConfig({
         outDir: 'dist-playground',
         emptyOutDir: true,
         rollupOptions: {
-          input: resolve(__dirname, 'test.html'),
+          input: resolve(__dirname, 'index.html'),
         },
       }
     : {

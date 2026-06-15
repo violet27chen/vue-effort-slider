@@ -272,7 +272,7 @@ canvas {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #222225;
+  background: #494950;
   top: 50%;
   transform: translateY(-50%);
   transition: opacity 0.6s;

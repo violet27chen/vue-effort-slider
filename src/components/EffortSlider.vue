@@ -38,19 +38,20 @@
     </defs>
   </svg>
 
-  <div class="card-shadow">
-    <div class="card" :style="cardClip">
+  <div class="card-shadow" :style="shadowStyle">
+    <div class="card" :style="cardStyle">
       <div class="header">
         <div class="header-left">
-          <span class="label-text">Effort</span>
+          <span class="label-text" :style="{ color: labelColor }">{{ label }}</span>
           <span
             class="status-text"
             :class="{ glowing: isActive, 'animate-up': isAnimating }"
+            :style="statusTextStyle"
           >
             {{ statusLabel }}
           </span>
         </div>
-        <div class="help-btn">
+        <div v-if="showHelp" ref="helpBtnRef" class="help-btn" :style="{ color: helpIconColor }" @click="toggleHelp">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -60,9 +61,9 @@
         </div>
       </div>
 
-      <div class="scale-labels">
-        <span>Faster</span>
-        <span>Smarter</span>
+      <div class="scale-labels" :style="{ color: scaleLabelColor }">
+        <span>{{ scaleLabels[0] }}</span>
+        <span>{{ scaleLabels[1] }}</span>
       </div>
 
       <div class="track-wrapper"
@@ -74,24 +75,147 @@
         </div>
         <canvas ref="canvasRef" :style="canvasMask"></canvas>
         <input
-          type="range" min="0" max="100"
-          :value="sliderValue"
+          type="range" min="0" max="100" step="1"
+          :value="displayValue"
           :class="{ glowing: isActive }"
-          @input="onInput"
+          @input="handleInput"
+          @change="handleChange"
         />
       </div>
     </div>
   </div>
+
+  <Teleport to="body">
+    <div v-if="showTooltip && helpBtnRef" class="help-tooltip" :style="tooltipStyle">
+      <span>{{ helpText }}</span>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useSliderState } from './composables/useSliderState'
 import { useWebglFire } from './composables/useWebglFire'
 
+/* ── props ────────────────────────────────── */
+const props = defineProps({
+  modelValue:     { type: Number,  default: 75 },
+  width:          { type: [String, Number], default: 376 },
+  label:          { type: String,  default: 'Slider' },
+  threshold:      { type: Number,  default: 100 },
+  scaleLabels:    { type: Array,   default: () => ['Faster', 'Smarter'] },
+  statusLabels:   { type: Object,  default: () => ({ level1: 'Minimal', level2: 'Low', level3: 'Medium', level4: 'High', level5: 'Max' }) },
+  background:     { type: String,  default: '#000000' },
+  borderRadius:   { type: [String, Number], default: 20 },
+  showHelp:       { type: Boolean, default: true },
+  helpText:       { type: String,  default: '这是一个 Effort 滑块组件' },
+  labelColor:     { type: String,  default: '#b0b0c7' },
+  statusColor:    { type: String,  default: '#a1a1aa' },
+  activeColor:    { type: String,  default: '#c084fc' },
+  highlightColor: { type: String,  default: '#c084fc' },
+  scaleLabelColor:{ type: String,  default: '#b0b0b8' },
+  helpIconColor:  { type: String,  default: '#a1a1aa' },
+  trailColor:     { type: String,  default: '#a857f7' },
+  thumbColor:     { type: String,  default: '#ffffff' },
+  trackColor:     { type: String,  default: '#0c0c0c' },
+  dotColor:       { type: String,  default: '#494950' },
+})
+
+const emit = defineEmits(['update:modelValue', 'change', 'help'])
+
+/* ── help tooltip ─────────────────────────── */
+const showTooltip = ref(false)
+const helpBtnRef = ref(null)
+
+function toggleHelp(e) {
+  e.stopPropagation()
+  showTooltip.value = !showTooltip.value
+  emit('help')
+}
+
+function closeHelp(e) {
+  if (showTooltip.value && helpBtnRef.value && !helpBtnRef.value.contains(e.target) && !isTooltipElement(e.target)) {
+    showTooltip.value = false
+  }
+}
+
+const tooltipStyle = computed(() => {
+  if (!helpBtnRef.value) return {}
+  const rect = helpBtnRef.value.getBoundingClientRect()
+  return {
+    position: 'fixed',
+    left: `${rect.right}px`,
+    top: `${rect.top - 8}px`,
+    transform: 'translate(-100%, -100%)',
+  }
+})
+
+function isTooltipElement(el) {
+  return el && el.closest && el.closest('.help-tooltip')
+}
+
 /* ── slider state ─────────────────────────── */
-const { sliderValue, isActive, isFull, isAnimating, statusLabel, onInput } =
-  useSliderState()
+const { sliderValue, isActive, isFull, isAnimating, statusLabel, onInput, setValue } =
+  useSliderState({
+    initialValue: props.modelValue,
+    threshold: props.threshold,
+    labels: props.statusLabels,
+  })
+
+/* ── snap-to-step animation ───────────────── */
+const displayValue = ref(sliderValue.value)
+let snapId = null
+
+function cancelSnap() {
+  if (snapId != null) { cancelAnimationFrame(snapId); snapId = null }
+}
+
+function snapToNearest() {
+  cancelSnap()
+  const target = Math.round(displayValue.value / 25) * 25
+  const start = displayValue.value
+  if (target === start) return
+  const t0 = performance.now()
+  const duration = 220
+
+  function tick(now) {
+    const p = Math.min((now - t0) / duration, 1)
+    const ease = 1 - Math.pow(1 - p, 3)          // ease-out cubic
+    const v = Math.round(start + (target - start) * ease)
+    displayValue.value = v
+    sliderValue.value = v
+    if (p < 1) {
+      snapId = requestAnimationFrame(tick)
+    } else {
+      snapId = null
+      emit('update:modelValue', target)
+      emit('change', target)
+    }
+  }
+  snapId = requestAnimationFrame(tick)
+}
+
+onBeforeUnmount(cancelSnap)
+
+/* ── v-model sync ─────────────────────────── */
+watch(() => props.modelValue, (v) => {
+  if (v !== sliderValue.value) {
+    cancelSnap()
+    setValue(v)
+    displayValue.value = Math.max(0, Math.min(100, parseInt(v, 10)))
+  }
+})
+
+function handleInput(e) {
+  cancelSnap()
+  onInput(e)
+  displayValue.value = sliderValue.value
+  emit('update:modelValue', sliderValue.value)
+}
+
+function handleChange() {
+  snapToNearest()
+}
 
 /* ── clip-path IDs ────────────────────────── */
 const uid = Math.random().toString(36).slice(2, 8)
@@ -101,17 +225,60 @@ const clipTrackId = `squircle-track-${uid}`
 const cardClip = computed(() => ({ clipPath: `url(#${clipId})` }))
 const trackClip = computed(() => ({ clipPath: `url(#${clipTrackId})` }))
 
+/* ── dynamic styles from props ────────────── */
+const widthPx = computed(() =>
+  typeof props.width === 'number' ? `${props.width}px` : props.width
+)
+const radiusPx = computed(() =>
+  typeof props.borderRadius === 'number' ? `${props.borderRadius}px` : props.borderRadius
+)
+
+const shadowStyle = computed(() => ({
+  filter: 'drop-shadow(0 12px 28px rgba(0,0,0,0.2)) drop-shadow(0 4px 12px rgba(0,0,0,0.1))',
+  transition: 'filter 0.2s ease',
+}))
+
+const cardStyle = computed(() => ({
+  ...cardClip.value,
+  background: props.background,
+  width: widthPx.value,
+  borderRadius: radiusPx.value,
+  '--active-color': props.highlightColor,
+  '--thumb-color': props.thumbColor,
+  '--track-color': props.trackColor,
+  '--dot-color': props.dotColor,
+}))
+
+const statusTextStyle = computed(() => {
+  if (isActive.value) {
+    return {
+      color: props.activeColor,
+      textShadow: `0 0 12px ${props.activeColor}99`,
+    }
+  }
+  return { color: props.statusColor }
+})
+
 const canvasMask = computed(() => {
-  const p = Math.min(sliderValue.value + 2, 100)
+  const p = Math.min(displayValue.value + 2, 100)
   return {
     maskImage: `linear-gradient(to right, black 0%, black ${p}%, transparent ${p}%)`,
     WebkitMaskImage: `linear-gradient(to right, black 0%, black ${p}%, transparent ${p}%)`,
   }
 })
 
+/* ── close help on outside click ───────────── */
+onMounted(() => {
+  document.addEventListener('click', closeHelp)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', closeHelp)
+})
+
 /* ── webgl engine ─────────────────────────── */
 const canvasRef = ref(null)
-useWebglFire(canvasRef, sliderValue, isActive)
+useWebglFire(canvasRef, sliderValue, isActive, () => props.trailColor)
 </script>
 
 <style scoped>
@@ -123,18 +290,15 @@ useWebglFire(canvasRef, sliderValue, isActive)
 }
 
 .card-shadow {
-  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.2))
-    drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
   transition: filter 0.2s ease;
 }
 
 .card {
-  background: #000000;
-  width: 376px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 20px;
   padding: 18px 20px 16px;
   user-select: none;
+  font-family: 'DM Sans', -apple-system, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 .header {
@@ -155,14 +319,12 @@ useWebglFire(canvasRef, sliderValue, isActive)
 }
 
 .label-text {
-  color: #b0b0c7;
   font-weight: 700;
   line-height: 1.3;
 }
 
 .status-text {
   display: inline-block;
-  color: #a1a1aa;
   transition: color 0.3s, text-shadow 0.3s;
   will-change: transform, opacity, filter;
   vertical-align: middle;
@@ -171,8 +333,6 @@ useWebglFire(canvasRef, sliderValue, isActive)
 }
 
 .status-text.glowing {
-  color: #c084fc;
-  text-shadow: 0 0 12px rgba(168, 85, 247, 0.6);
   font-weight: 600;
 }
 
@@ -198,10 +358,10 @@ useWebglFire(canvasRef, sliderValue, isActive)
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #a1a1aa;
   transition: color 0.2s;
   line-height: 1;
   padding: 0;
+  position: relative;
 }
 
 .help-btn:hover { color: #d4d4d8; }
@@ -214,12 +374,24 @@ useWebglFire(canvasRef, sliderValue, isActive)
   shape-rendering: geometricPrecision;
 }
 
+.help-tooltip {
+  position: fixed;
+  background: #1a1a1e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #d4d4d8;
+  white-space: nowrap;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 .scale-labels {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
   font-weight: 800;
-  color: #b0b0b8;
   margin-bottom: 7px;
   letter-spacing: 0.04em;
 }
@@ -231,18 +403,17 @@ useWebglFire(canvasRef, sliderValue, isActive)
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid #1a1a1e;
-  background: #0c0c0c;
+  background: var(--track-color);
   isolation: isolate;
 }
 
 .track-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #111113, #0a0a0b);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--track-color) 85%, #fff), var(--track-color));
   z-index: 0;
 }
 
-/* FIX: opacity 代替 display:none，保证 canvas 始终有布局尺寸 */
 canvas {
   position: absolute;
   inset: 0;
@@ -272,7 +443,7 @@ canvas {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #494950;
+  background: var(--dot-color);
   top: 50%;
   transform: translateY(-50%);
   transition: opacity 0.6s;
@@ -281,11 +452,11 @@ canvas {
 .track-wrapper.active .dot { opacity: 0.25; }
 .track-wrapper.full .dot { opacity: 0; }
 
-.dot:nth-child(1) { left: 10%; }
-.dot:nth-child(2) { left: 30%; }
+.dot:nth-child(1) { left: calc(0% + 14.5px); }
+.dot:nth-child(2) { left: calc(25% + 7.25px); }
 .dot:nth-child(3) { left: 50%; }
-.dot:nth-child(4) { left: 70%; }
-.dot:nth-child(5) { left: 90%; }
+.dot:nth-child(4) { left: calc(75% - 7.25px); }
+.dot:nth-child(5) { left: calc(100% - 14.5px); }
 
 /* ── range input ───────────────────────────── */
 input[type='range'] {
@@ -308,7 +479,7 @@ input[type='range']::-webkit-slider-thumb {
   width: 29px;
   height: 29px;
   border-radius: 10px;
-  background: linear-gradient(170deg, #ffffff 0%, #f0f0f2 40%, #e4e4e6 100%);
+  background: linear-gradient(170deg, var(--thumb-color) 0%, color-mix(in srgb, var(--thumb-color) 88%, #000) 40%, color-mix(in srgb, var(--thumb-color) 78%, #000) 100%);
   border: 0.5px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.18),
     0 2px 6px rgba(0, 0, 0, 0.25), 0 6px 16px rgba(0, 0, 0, 0.12),
@@ -330,8 +501,8 @@ input[type='range']::-webkit-slider-thumb:active {
 input[type='range'].glowing::-webkit-slider-thumb {
   box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.18),
     0 2px 6px rgba(0, 0, 0, 0.25), 0 6px 16px rgba(0, 0, 0, 0.12),
-    0 0 28px rgba(168, 85, 247, 0.5),
-    0 0 50px rgba(168, 85, 247, 0.25),
+    0 0 28px color-mix(in srgb, var(--active-color) 50%, transparent),
+    0 0 50px color-mix(in srgb, var(--active-color) 25%, transparent),
     inset 0 0.5px 0 rgba(255, 255, 255, 0.85),
     inset 0 -0.5px 0 rgba(0, 0, 0, 0.06);
 }
@@ -339,8 +510,8 @@ input[type='range'].glowing::-webkit-slider-thumb {
 input[type='range'].glowing::-webkit-slider-thumb:active {
   box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.2),
     0 1px 3px rgba(0, 0, 0, 0.3), 0 3px 8px rgba(0, 0, 0, 0.15),
-    0 0 32px rgba(168, 85, 247, 0.55),
-    0 0 56px rgba(168, 85, 247, 0.3),
+    0 0 32px color-mix(in srgb, var(--active-color) 55%, transparent),
+    0 0 56px color-mix(in srgb, var(--active-color) 30%, transparent),
     inset 0 0.5px 0 rgba(255, 255, 255, 0.7),
     inset 0 -1px 0 rgba(0, 0, 0, 0.08);
 }
@@ -349,7 +520,7 @@ input[type='range']::-moz-range-thumb {
   width: 26px;
   height: 26px;
   border-radius: 9px;
-  background: linear-gradient(170deg, #ffffff 0%, #f0f0f2 40%, #e4e4e6 100%);
+  background: linear-gradient(170deg, var(--thumb-color) 0%, color-mix(in srgb, var(--thumb-color) 88%, #000) 40%, color-mix(in srgb, var(--thumb-color) 78%, #000) 100%);
   border: 0.5px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.18),
     0 2px 6px rgba(0, 0, 0, 0.25), 0 6px 16px rgba(0, 0, 0, 0.12);
@@ -362,19 +533,18 @@ input[type='range']::-moz-range-thumb:active {
   transform: scale(0.95);
 }
 
-/* FIX: Firefox 也加上 glow 和 active 态 */
 input[type='range'].glowing::-moz-range-thumb {
   box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.18),
     0 2px 6px rgba(0, 0, 0, 0.25), 0 6px 16px rgba(0, 0, 0, 0.12),
-    0 0 28px rgba(168, 85, 247, 0.5),
-    0 0 50px rgba(168, 85, 247, 0.25);
+    0 0 28px color-mix(in srgb, var(--active-color) 50%, transparent),
+    0 0 50px color-mix(in srgb, var(--active-color) 25%, transparent);
 }
 
 input[type='range'].glowing::-moz-range-thumb:active {
   box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.2),
     0 1px 3px rgba(0, 0, 0, 0.3), 0 3px 8px rgba(0, 0, 0, 0.15),
-    0 0 32px rgba(168, 85, 247, 0.55),
-    0 0 56px rgba(168, 85, 247, 0.3);
+    0 0 32px color-mix(in srgb, var(--active-color) 55%, transparent),
+    0 0 56px color-mix(in srgb, var(--active-color) 30%, transparent);
 }
 
 input[type='range']::-moz-range-track {

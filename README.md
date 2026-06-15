@@ -1,97 +1,245 @@
-# 复刻Claudecode的范围滑块
+# vue-effort-slider
 
-![alt text](image.png)
+[English](./README.md) | [中文](./README.zh-CN.md)
 
-## 目录结构
+A highly customizable Vue 3 range slider component with real-time WebGL fire trail effects. Inspired by Claude Code's effort slider, featuring smooth snap-to-step animation, dynamic color theming, and GPU-accelerated particle rendering.
 
+## Features
+
+- **WebGL2 fire trail** — Real-time GPU-rendered flame effect that activates when the slider reaches the threshold
+- **Snap-to-step animation** — Smooth cubic ease-out animation snaps the thumb to the nearest 25% mark
+- **Fully themeable** — 10+ color props to customize every visual element (thumb, trail, track, labels, glow)
+- **v-model support** — Standard Vue two-way binding with `modelValue`
+- **Squircle clip paths** — Apple-style superellipse clipping for the card and track
+- **Responsive** — Accepts pixel values or CSS strings for width
+- **Help tooltip** — Built-in help icon with teleport-based tooltip
+- **Lightweight** — Zero runtime dependencies, only requires Vue 3 as a peer dependency
+
+## Install
+
+```bash
+npm install vue-effort-slider
 ```
-effort-card/
-├── EffortCard.vue              # 主组件，负责 UI 布局和样式
-├── composables/
-│   ├── useSliderState.js       # 滑块业务状态（值、标签、动画）
-│   └── useWebglFire.js         # WebGL 引擎（context、FBO、渲染循环）
-├── shaders/
-│   └── index.js                # 全部 GLSL 源码（顶点 + 三段片段着色器）
-└── README.md
+
+## Quick Start
+
+### Global Registration
+
+```js
+// main.js
+import { createApp } from 'vue'
+import App from './App.vue'
+import VueEffortSlider from 'vue-effort-slider'
+import 'vue-effort-slider/style.css'
+
+const app = createApp(App)
+app.use(VueEffortSlider)
+app.mount('#app')
 ```
 
-## 文件说明
+```vue
+<template>
+  <EffortSlider v-model="value" />
+</template>
 
-### `EffortCard.vue`
+<script setup>
+import { ref } from 'vue'
+const value = ref(75)
+</script>
+```
 
-主组件，只负责**模板和样式**，不含任何 WebGL 逻辑。
+### Local Import
 
-- 渲染 SVG squircle 裁剪路径（卡片和滑轨各一个）
-- 布局 header、状态标签、滑轨、滑块
-- 调用两个 composable 获取状态和引擎
-- CSS 包含所有视觉细节：滑块阴影、glow 效果、翻转动画、Firefox 兼容样式
+```vue
+<template>
+  <EffortSlider v-model="value" label="思考深度" />
+</template>
 
-### `shaders/index.js`
+<script setup>
+import { ref } from 'vue'
+import { EffortSlider } from 'vue-effort-slider'
+import 'vue-effort-slider/style.css'
 
-纯数据文件，导出四个 GLSL 源码字符串：
+const value = ref(50)
+</script>
+```
 
-| 导出 | 类型 | 用途 |
-|---|---|---|
-| `VERT` | 顶点着色器 | 全屏三角形，输出 UV 坐标 |
-| `FRAG_SIM` | 片段着色器 | 火焰模拟：细胞网格、衰减、火花、边缘光 |
-| `FRAG_BLUR` | 片段着色器 | 7-tap 高斯模糊（水平/垂直复用，用 uniform 区分方向） |
-| `FRAG_COMP` | 片段着色器 | 将场景和 glow 贴图做色调映射合成 |
+## Props
 
-### `composables/useSliderState.js`
+### Basic Props
 
-纯业务逻辑，**无 DOM 依赖**，可独立单元测试。
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `modelValue` | `Number` | `75` | Current slider value, supports `v-model`. Range: `0` to `100` |
+| `width` | `String \| Number` | `376` | Component width. Accepts a number (pixels) or a CSS string (e.g. `'100%'`) |
+| `label` | `String` | `'Slider'` | Header label text displayed next to the status |
+| `threshold` | `Number` | `100` | Value at which the WebGL fire effect activates. Set to `100` to only activate at max |
+| `scaleLabels` | `String[]` | `['Faster', 'Smarter']` | Two-element array for left and right endpoint labels below the track |
+| `statusLabels` | `Object` | `{ level1: 'Minimal', level2: 'Low', level3: 'Medium', level4: 'High', level5: 'Max' }` | Status text for each of the 5 gear levels |
+| `background` | `String` | `'#000000'` | Card background color (any CSS color value) |
+| `borderRadius` | `String \| Number` | `20` | Card border radius in pixels |
+| `showHelp` | `Boolean` | `true` | Whether to display the help icon in the header |
+| `helpText` | `String` | `'这是一个 Effort 滑块组件'` | Tooltip content shown when the help icon is clicked |
 
-**返回值：**
+### Color Props
 
-| 字段 | 类型 | 说明 |
-|---|---|---|
-| `sliderValue` | `Ref<number>` | 当前滑块值 (0–100) |
-| `isActive` | `ComputedRef<boolean>` | 是否到达 Ultracode 阈值 (>= 100) |
-| `isFull` | `ComputedRef<boolean>` | 是否恰好 100 |
-| `isAnimating` | `Ref<boolean>` | 翻转动画是否正在播放 |
-| `statusLabel` | `ComputedRef<string>` | 状态文本：Low / Medium / High / Ultracode |
-| `onInput` | `(e) => void` | 滑块 input 事件处理器 |
+All color props accept any valid CSS color value (hex, rgb, hsl, etc.).
 
-**内部行为：**
-- 监听 `statusLabel` 变化，进入/退出 Ultracode 时触发 CSS 翻转动画
-- 组件卸载时自动清理 timer
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `labelColor` | `String` | `'#b0b0c7'` | Color of the header label text (e.g. "Effort") |
+| `statusColor` | `String` | `'#a1a1aa'` | Color of the status text when slider is below threshold |
+| `activeColor` | `String` | `'#c084fc'` | Color of the status text when slider reaches threshold (with glow effect) |
+| `highlightColor` | `String` | `'#c084fc'` | Thumb glow color when slider is at or above threshold |
+| `scaleLabelColor` | `String` | `'#b0b0b8'` | Color of the endpoint labels ("Faster" / "Smarter") |
+| `helpIconColor` | `String` | `'#a1a1aa'` | Color of the help icon |
+| `trailColor` | `String` | `'#a857f7'` | Color of the WebGL fire trail effect |
+| `thumbColor` | `String` | `'#ffffff'` | Color of the draggable slider thumb |
+| `trackColor` | `String` | `'#0c0c0c'` | Background color of the slider track |
+| `dotColor` | `String` | `'#494950'` | Color of the 5 decorative dots on the track |
 
-### `composables/useWebglFire.js`
+## Events
 
-WebGL2 渲染引擎，封装了完整的生命周期管理。
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `update:modelValue` | `Number` | Emitted continuously as the slider is dragged. Used by `v-model` |
+| `change` | `Number` | Emitted once when dragging ends, after the snap animation completes. The payload is the final snapped value |
+| `help` | — | Emitted when the help icon is clicked |
 
-**参数：**
+## Examples
 
-| 参数 | 类型 | 说明 |
-|---|---|---|
-| `canvasRef` | `Ref<HTMLCanvasElement>` | canvas 元素引用 |
-| `sliderValue` | `Ref<number>` | 滑块值（驱动火焰位置） |
-| `isActive` | `Ref<boolean>` | 是否处于 Ultracode 模式（驱动渲染循环启停） |
+### Basic Usage
 
-**内部职责：**
+```vue
+<template>
+  <EffortSlider v-model="value" />
+</template>
 
-1. **初始化** — `onMounted` 时获取 WebGL2 context，编译链接 shader program，创建 VAO/VBO
-2. **尺寸管理** — `ResizeObserver` 监听 canvas 尺寸变化，自动重建 FBO
-3. **渲染循环** — 4-pass 管线：
-   - Pass 1：火焰模拟（写入 simB，读取上一帧 simA）
-   - Pass 2：水平高斯模糊
-   - Pass 3：垂直高斯模糊
-   - Pass 4：色调映射合成到屏幕
-4. **性能优化** — 内部缓存 reactive 值（`cachedActive` / `cachedSlider`），渲染循环不触发 Vue 依赖追踪；闲置 180 帧后自动停止 rAF
-5. **资源释放** — `onBeforeUnmount` 时销毁所有 FBO、program、VAO、VBO，移除事件监听
-6. **Context 恢复** — `webglcontextrestored` 时重建资源而非刷新页面
+<script setup>
+import { ref } from 'vue'
+import { EffortSlider } from 'vue-effort-slider'
+import 'vue-effort-slider/style.css'
 
-## 关键设计决策
+const value = ref(50)
+</script>
+```
 
-| 决策 | 原因 |
-|---|---|
-| canvas 用 `opacity: 0` 而非 `display: none` | Chrome 下隐藏 canvas 的 WebGL context 可能休眠或尺寸为 0 |
-| watcher 用 `{ flush: 'post' }` | 确保 CSS 类已应用、DOM 已更新后再初始化 canvas 尺寸 |
-| 渲染循环读缓存值而非 `.value` | 每帧两次 reactive 追踪有开销，热路径应避免 |
-| `ResizeObserver` 替代 rAF 轮询 | 更可靠地检测尺寸变化，自带 debounce |
-| shader 独立文件 | 编辑器语法高亮、可复用、主文件更干净 |
+### Custom Labels and Colors
 
-## 依赖
+```vue
+<template>
+  <EffortSlider
+    v-model="depth"
+    label="思考深度"
+    :width="400"
+    :scale-labels="['快速', '精准']"
+    :status-labels="{
+      level1: '极简',
+      level2: '简单',
+      level3: '一般',
+      level4: '深入',
+      level5: '极致'
+    }"
+    trail-color="#8b5cf6"
+    highlight-color="#a78bfa"
+    active-color="#c084fc"
+    thumb-color="#ffffff"
+    track-color="#0a0a0a"
+    background="#000000"
+    help-text="拖动滑块调整 AI 思考深度"
+  />
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { EffortSlider } from 'vue-effort-slider'
+import 'vue-effort-slider/style.css'
+
+const depth = ref(50)
+</script>
+```
+
+### Listening to Events
+
+```vue
+<template>
+  <EffortSlider
+    v-model="value"
+    @change="onValueChanged"
+    @help="onHelpClicked"
+  />
+  <p>当前值: {{ value }}</p>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { EffortSlider } from 'vue-effort-slider'
+import 'vue-effort-slider/style.css'
+
+const value = ref(75)
+
+function onValueChanged(val) {
+  console.log('Slider settled at:', val)
+}
+
+function onHelpClicked() {
+  console.log('Help icon clicked')
+}
+</script>
+```
+
+### Custom Width
+
+```vue
+<template>
+  <!-- Pixel value -->
+  <EffortSlider v-model="v1" :width="300" />
+
+  <!-- CSS string -->
+  <EffortSlider v-model="v2" width="100%" />
+</template>
+```
+
+## How It Works
+
+### Rendering Pipeline
+
+The fire trail effect uses a 4-pass WebGL2 rendering pipeline:
+
+1. **Simulation pass** — Computes flame patterns using cellular noise, decay, sparks, and edge lighting
+2. **Horizontal blur** — 7-tap Gaussian blur in the horizontal direction
+3. **Vertical blur** — 7-tap Gaussian blur in the vertical direction
+4. **Composite pass** — Tone-maps the scene and glow textures into the final output
+
+### Performance
+
+- Rendering loop uses cached reactive values to avoid Vue dependency tracking overhead
+- Automatically stops after 180 idle frames when inactive
+- Uses `ResizeObserver` for efficient canvas size management
+- Canvas uses `opacity: 0` instead of `display: none` to prevent Chrome WebGL context休眠
+
+### Snap Animation
+
+When the user releases the slider, it smoothly animates to the nearest 25% mark using a cubic ease-out curve over 220ms.
+
+## Browser Support
+
+- Chrome 90+
+- Firefox 90+
+- Safari 15+
+- Edge 90+
+
+Requires WebGL2 support. All modern desktop and mobile browsers support WebGL2.
+
+## Requirements
 
 - Vue 3.3+
-- WebGL2（所有现代浏览器均支持）
+- WebGL2-capable browser
+
+## Acknowledgments
+
+This project is based on [claude-range-slider](https://github.com/254558/claude-range-slider) by [254558](https://github.com/254558). Thanks for the open source contribution.
+
+## License
+
+MIT

@@ -1,7 +1,7 @@
 import { watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { VERT, FRAG_SIM, FRAG_BLUR, FRAG_COMP } from '../shaders/index.js'
 
-export function useWebglFire(canvasRef, sliderValue, isActive) {
+export function useWebglFire(canvasRef, sliderValue, isActive, getTrailColor) {
   /* ── internal state ───────────────────────── */
   let gl = null
   let canvasEl = null
@@ -23,7 +23,7 @@ export function useWebglFire(canvasRef, sliderValue, isActive) {
   let simA = null, simB = null, blurH = null, blurV = null
 
   const U = {
-    simTime: null, simSlider: null, simElapsed: null, simBack: null,
+    simTime: null, simSlider: null, simElapsed: null, simBack: null, simColor: null,
     blurDir: null, blurExt: null, blurTex: null, blurRes: null,
     compScene: null, compGlow: null,
   }
@@ -31,9 +31,20 @@ export function useWebglFire(canvasRef, sliderValue, isActive) {
   /* ── cached reactive values (no per-frame tracking) ─── */
   let cachedActive = false
   let cachedSlider = 0.7
+  let cachedColor = [0.66, 0.34, 0.97]
+
+  function hexToRgb(hex) {
+    const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+    return m ? [parseInt(m[1], 16) / 255, parseInt(m[2], 16) / 255, parseInt(m[3], 16) / 255] : [0.66, 0.34, 0.97]
+  }
 
   watch(isActive, v => { cachedActive = v }, { immediate: true })
   watch(sliderValue, v => { cachedSlider = v / 100 }, { immediate: true })
+
+  if (getTrailColor) {
+    const updateColor = () => { cachedColor = hexToRgb(getTrailColor()) }
+    watch(getTrailColor, updateColor, { immediate: true })
+  }
 
   watch(isActive, now => {
     if (now && ultraStart == null) ultraStart = performance.now()
@@ -165,6 +176,7 @@ export function useWebglFire(canvasRef, sliderValue, isActive) {
     U.simSlider = gl.getUniformLocation(simProg, 'u_slider')
     U.simElapsed = gl.getUniformLocation(simProg, 'u_elapsed')
     U.simBack = gl.getUniformLocation(simProg, 'u_back')
+    U.simColor = gl.getUniformLocation(simProg, 'u_color')
     U.blurDir = gl.getUniformLocation(blurProg, 'u_dir')
     U.blurExt = gl.getUniformLocation(blurProg, 'u_ext')
     U.blurTex = gl.getUniformLocation(blurProg, 'u_tex')
@@ -282,6 +294,7 @@ export function useWebglFire(canvasRef, sliderValue, isActive) {
     gl.uniform1f(U.simTime, t * 0.001)
     gl.uniform1f(U.simSlider, sv)
     gl.uniform1f(U.simElapsed, elapsed)
+    gl.uniform3f(U.simColor, cachedColor[0], cachedColor[1], cachedColor[2])
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, simA.tex)
     gl.uniform1i(U.simBack, 0)

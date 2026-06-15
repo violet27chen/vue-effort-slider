@@ -1,18 +1,39 @@
 {
-  "name": "vite-project",
-  "private": true,
-  "version": "0.0.0",
+  "name": "vue-effort-slider",
+  "private": false,
+  "version": "1.0.0",
   "type": "module",
+  "description": "A Vue 3 range slider component with WebGL fire effects",
+  "main": "./dist/vue-effort-slider.umd.cjs",
+  "module": "./dist/vue-effort-slider.js",
+  "exports": {
+    ".": {
+      "import": "./dist/vue-effort-slider.js",
+      "require": "./dist/vue-effort-slider.umd.cjs"
+    },
+    "./style.css": {
+      "import": "./dist/vue-effort-slider.css",
+      "require": "./dist/vue-effort-slider.css"
+    },
+    "./dist/*": "./dist/*"
+  },
+  "files": [
+    "dist",
+    "README.zh-CN.md"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:playground": "cross-env BUILD_TARGET=playground vite build",
     "preview": "vite preview"
   },
-  "dependencies": {
-    "vue": "^3.5.34"
+  "peerDependencies": {
+    "vue": "^3.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.6",
-    "vite": "^8.0.12"
+    "cross-env": "^10.1.0",
+    "vite": "^8.0.12",
+    "vue": "^3.5.34"
   }
 }

@@ -9,6 +9,7 @@ export const FRAG_SIM = `#version 300 es
   in vec2 v_uv; out vec4 fc;
   uniform float u_time, u_slider, u_elapsed;
   uniform sampler2D u_back;
+  uniform vec3 u_color;
   float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
   void main(){
     vec2 uv=v_uv;
@@ -73,8 +74,8 @@ export const FRAG_SIM = `#version 300 es
     float leadF    = sin(leadD * 100.0 + t * 20.0 * ts + h2 * 6.28) * 0.5 + 0.5;
     float leadSpark = leadZone * step(0.6, h2) * leadF * act * es * 0.5;
     float total = energy + edge + leadSpark;
-    vec3 ember = vec3(0.28, 0.10, 0.58);
-    vec3 wpur  = vec3(0.62, 0.32, 1.0);
+    vec3 ember = u_color * 0.35;
+    vec3 wpur  = u_color;
     vec3 wht   = vec3(1.0, 0.94, 0.98);
     float temp = 1.0 - dn;
     vec3 col   = mix(ember, wpur, temp);

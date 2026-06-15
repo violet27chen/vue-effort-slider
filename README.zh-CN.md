@@ -238,7 +238,7 @@ function onHelpClicked() {
 
 ## 致谢
 
-本项目基于 [254558](https://github.com/254558) 的开源项目 [claude-range-slider](https://github.com/254558/claude-range-slider)，在此表示感谢。
+感谢 [254558/claude-range-slider](https://github.com/254558/claude-range-slider) 的开源项目。
 
 ## 许可证
 

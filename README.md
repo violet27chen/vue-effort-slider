@@ -238,7 +238,7 @@ Requires WebGL2 support. All modern desktop and mobile browsers support WebGL2.
 
 ## Acknowledgments
 
-This project is based on [claude-range-slider](https://github.com/254558/claude-range-slider) by [254558](https://github.com/254558). Thanks for the open source contribution.
+Thanks to [254558/claude-range-slider](https://github.com/254558/claude-range-slider) for the open source inspiration.
 
 ## License
 

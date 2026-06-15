@@ -79,7 +79,7 @@ const value = ref(50)
 | `background` | `String` | `'#000000'` | Card background color (any CSS color value) |
 | `borderRadius` | `String \| Number` | `20` | Card border radius in pixels |
 | `showHelp` | `Boolean` | `true` | Whether to display the help icon in the header |
-| `helpText` | `String` | `'这是一个 Effort 滑块组件'` | Tooltip content shown when the help icon is clicked |
+| `helpText` | `String` | `'拖动滑块调整 AI 思考深度'` | Tooltip content shown when the help icon is clicked |
 
 ### Color Props
 

@@ -108,7 +108,7 @@ const props = defineProps({
   background:     { type: String,  default: '#000000' },
   borderRadius:   { type: [String, Number], default: 20 },
   showHelp:       { type: Boolean, default: true },
-  helpText:       { type: String,  default: '这是一个 Effort 滑块组件' },
+  helpText:       { type: String,  default: '拖动滑块调整 AI 思考深度' },
   labelColor:     { type: String,  default: '#b0b0c7' },
   statusColor:    { type: String,  default: '#a1a1aa' },
   activeColor:    { type: String,  default: '#c084fc' },

@@ -412,6 +412,8 @@
     const S = reactive({
       modelValue: 75,
       width: 376,
+      x: 0,
+      y: 0,
       label: 'Slider',
       threshold: 100,
       scaleLabels: ['Faster', 'Smarter'],
@@ -434,9 +436,11 @@
 
     function genCode() {
       const L = []
+      const useXY = S.x !== 0 || S.y !== 0
       L.push('<!-- 框架: Vue 3 + <script setup> -->')
       L.push('<!-- 安装: npm install vue-effort-slider -->')
       L.push('<template>')
+      if (useXY) L.push(`  <div style="transform: translate(${S.x}px, ${S.y}px)">`)
       L.push('  <EffortSlider v-model="value"')
       if (S.width !== 376) L.push(`    :width="${S.width}"`)
       if (S.label !== 'Slider') L.push(`    label="${S.label}"`)
@@ -463,6 +467,7 @@
       if (S.trackColor !== '#0c0c0c') L.push(`    track-color="${S.trackColor}"`)
       if (S.dotColor !== '#494950') L.push(`    dot-color="${S.dotColor}"`)
       L.push('  />')
+      if (useXY) L.push('  </div>')
       L.push('</template>')
       L.push('')
       L.push('<script setup>')
@@ -552,6 +557,8 @@
         strip('基础设置',
           field('当前值', num('modelValue', 0, 100)),
           field('宽度', num('width', 200, 600)),
+          field('位置 X', num('x', -200, 200)),
+          field('位置 Y', num('y', -200, 200)),
           field('圆角', num('borderRadius', 0, 50)),
           field('阈值', num('threshold', 0, 100)),
         ),
@@ -661,20 +668,22 @@
               ]),
               'GitHub',
             ]),
-            h(EffortSlider, {
-              modelValue: S.modelValue,
-              'onUpdate:modelValue': v => { S.modelValue = v; paintCode() },
-              width: S.width, label: S.label, threshold: S.threshold,
-              scaleLabels: S.scaleLabels, statusLabels: S.statusLabels,
-              background: S.background, borderRadius: S.borderRadius,
-              showHelp: S.showHelp, helpText: S.helpText,
-              labelColor: S.labelColor, statusColor: S.statusColor,
-              activeColor: S.activeColor, highlightColor: S.highlightColor,
-              scaleLabelColor: S.scaleLabelColor,
-              helpIconColor: S.helpIconColor, trailColor: S.trailColor,
-              thumbColor: S.thumbColor, trackColor: S.trackColor,
-              dotColor: S.dotColor,
-            })
+            h('div', { style: { transform: `translate(${S.x}px, ${S.y}px)` } }, [
+              h(EffortSlider, {
+                modelValue: S.modelValue,
+                'onUpdate:modelValue': v => { S.modelValue = v; paintCode() },
+                width: S.width, label: S.label, threshold: S.threshold,
+                scaleLabels: S.scaleLabels, statusLabels: S.statusLabels,
+                background: S.background, borderRadius: S.borderRadius,
+                showHelp: S.showHelp, helpText: S.helpText,
+                labelColor: S.labelColor, statusColor: S.statusColor,
+                activeColor: S.activeColor, highlightColor: S.highlightColor,
+                scaleLabelColor: S.scaleLabelColor,
+                helpIconColor: S.helpIconColor, trailColor: S.trailColor,
+                thumbColor: S.thumbColor, trackColor: S.trackColor,
+                dotColor: S.dotColor,
+              })
+            ])
           ]),
           h('div', { class: 'config-pane' }, [
             h('div', { class: 'pane-header' }, [

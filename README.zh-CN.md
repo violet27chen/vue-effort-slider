@@ -66,6 +66,21 @@ const value = ref(50)
 </script>
 ```
 
+### 子模块导入
+
+每个模块可单独导入，支持 tree-shaking：
+
+```js
+// 完整组件
+import { EffortSlider } from 'vue-effort-slider'
+
+// 仅 composables
+import { useSliderState, useWebglFire } from 'vue-effort-slider/composables'
+
+// 仅着色器（GLSL 源码字符串）
+import { VERT, FRAG_SIM, FRAG_BLUR, FRAG_COMP } from 'vue-effort-slider/shaders'
+```
+
 ## Props
 
 ### 基础属性

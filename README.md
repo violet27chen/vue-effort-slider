@@ -66,6 +66,21 @@ const value = ref(50)
 </script>
 ```
 
+### Sub-module Imports
+
+Each module can be imported separately for tree-shaking:
+
+```js
+// Full component
+import { EffortSlider } from 'vue-effort-slider'
+
+// Composables only
+import { useSliderState, useWebglFire } from 'vue-effort-slider/composables'
+
+// Shaders only (GLSL source strings)
+import { VERT, FRAG_SIM, FRAG_BLUR, FRAG_COMP } from 'vue-effort-slider/shaders'
+```
+
 ## Props
 
 ### Basic Props

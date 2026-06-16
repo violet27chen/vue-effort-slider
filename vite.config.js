@@ -18,9 +18,14 @@ export default defineConfig({
     : {
         copyPublicDir: false,
         lib: {
-          entry: resolve(__dirname, 'src/index.js'),
-          name: 'VueEffortSlider',
-          fileName: 'vue-effort-slider',
+          entry: {
+            'vue-effort-slider': resolve(__dirname, 'src/index.js'),
+            composables: resolve(__dirname, 'src/composables.js'),
+            shaders: resolve(__dirname, 'src/shaders.js'),
+          },
+          formats: ['es', 'cjs'],
+          fileName: (format, entryName) =>
+            `${entryName}.${format === 'es' ? 'js' : 'cjs'}`,
         },
         rollupOptions: {
           external: ['vue'],

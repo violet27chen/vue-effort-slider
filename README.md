@@ -28,55 +28,14 @@ npm install vue-effort-slider
 
 ## Quick Start from Scratch
 
-Create a new project and get running in 3 steps:
-
 ```bash
 # 1. Create project
-mkdir my-slider && cd my-slider
-npm init -y
+npm create vite@latest my-slider -- --template vanilla
+cd my-slider
 npm install vue vue-effort-slider
-npm install -D vite @vitejs/plugin-vue
 ```
 
-Create 3 files:
-
-**`vite.config.js`**
-
-```js
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-
-export default defineConfig({
-  plugins: [vue()],
-  define: {
-    __VUE_OPTIONS_API__: true,
-    __VUE_PROD_DEVTOOLS__: false,
-    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
-  },
-})
-```
-
-**`index.html`**
-
-```html
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Slider</title>
-  <style>
-    body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #09090b; }
-  </style>
-</head>
-<body>
-  <div id="app"></div>
-  <script type="module" src="/main.js"></script>
-</body>
-</html>
-```
-
-**`main.js`**
+Replace the content of `main.js`:
 
 ```js
 import { createApp, ref } from 'vue'
@@ -98,10 +57,7 @@ app.mount('#app')
 ```
 
 ```bash
-# 2. Add script to package.json
-#    "scripts": { "dev": "vite" }
-
-# 3. Run
+# 2. Run
 npm run dev
 ```
 

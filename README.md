@@ -4,6 +4,8 @@
 
 A highly customizable Vue 3 range slider component with real-time WebGL fire trail effects. Inspired by Claude Code's effort slider, featuring smooth snap-to-step animation, dynamic color theming, and GPU-accelerated particle rendering.
 
+![Demo](public/slider.gif)
+
 ## Features
 
 - **WebGL2 fire trail** — Real-time GPU-rendered flame effect that activates when the slider reaches the threshold

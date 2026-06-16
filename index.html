@@ -440,7 +440,7 @@
       L.push('<!-- 框架: Vue 3 + <script setup> -->')
       L.push('<!-- 安装: npm install vue-effort-slider -->')
       L.push('<template>')
-      if (useXY) L.push(`  <div style="transform: translate(${S.x}px, ${-S.y}px)">`)
+      if (useXY) L.push(`  <div style="transform: translate(${S.x}px, ${S.y}px)">`)
       L.push('  <EffortSlider v-model="value"')
       if (S.width !== 376) L.push(`    :width="${S.width}"`)
       if (S.label !== 'Slider') L.push(`    label="${S.label}"`)
@@ -670,7 +670,7 @@
               ]),
               'GitHub',
             ]),
-            h('div', { style: { transform: `translate(${S.x}px, ${-S.y}px)` } }, [
+            h('div', { style: { transform: `translate(${S.x}px, ${S.y}px)` } }, [
               h(EffortSlider, {
                 modelValue: S.modelValue,
                 'onUpdate:modelValue': v => { S.modelValue = v; paintCode() },

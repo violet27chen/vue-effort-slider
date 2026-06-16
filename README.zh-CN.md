@@ -9,6 +9,8 @@
 
 ![Demo](public/slider.gif)
 
+![Max](public/max.png)
+
 ## 特性
 
 - **WebGL2 火焰拖尾** — 实时 GPU 渲染的火焰效果，滑块达到阈值时自动激活

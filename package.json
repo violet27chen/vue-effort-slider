@@ -1,7 +1,7 @@
 {
   "name": "vue-effort-slider",
   "private": false,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "module",
   "description": "A Vue 3 range slider component with WebGL fire effects",
   "main": "./dist/vue-effort-slider.cjs",
@@ -31,7 +31,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/inline-css.js",
+    "build": "vite build",
     "build:playground": "cross-env BUILD_TARGET=playground vite build",
     "preview": "vite preview"
   },

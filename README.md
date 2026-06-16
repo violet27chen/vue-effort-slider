@@ -9,6 +9,8 @@ A highly customizable Vue 3 range slider component with real-time WebGL fire tra
 
 ![Demo](public/slider.gif)
 
+![Max](public/max.png)
+
 ## Features
 
 - **WebGL2 fire trail** — Real-time GPU-rendered flame effect that activates when the slider reaches the threshold

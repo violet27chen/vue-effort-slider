@@ -30,30 +30,26 @@ npm install vue-effort-slider
 
 ```bash
 # 1. Create project
-npm create vite@latest my-slider -- --template vanilla
+npm create vite@latest my-slider -- --template vue
 cd my-slider
-npm install vue vue-effort-slider
+npm install vue-effort-slider
 ```
 
-Replace the content of `main.js`:
+Modify `src/App.vue`:
 
-```js
-import { createApp, ref } from 'vue'
+```vue
+<script setup>
+import { ref } from 'vue'
 import { EffortSlider } from 'vue-effort-slider'
 import 'vue-effort-slider/style.css'
 
-const app = createApp({
-  setup() {
-    const value = ref(75)
-    return { value }
-  },
-  template: `
-    <EffortSlider v-model="value" />
-    <p style="color:#71717a;text-align:center;margin-top:16px">Current value: {{ value }}</p>
-  `
-})
-app.component('EffortSlider', EffortSlider)
-app.mount('#app')
+const value = ref(75)
+</script>
+
+<template>
+  <EffortSlider v-model="value" />
+  <p style="color:#71717a;text-align:center;margin-top:16px">Current value: {{ value }}</p>
+</template>
 ```
 
 ```bash

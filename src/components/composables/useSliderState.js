@@ -1,4 +1,4 @@
-import { ref, computed, watch, onBeforeUnmount, toValue } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
 
 export function useSliderState(options = {}) {
   const {

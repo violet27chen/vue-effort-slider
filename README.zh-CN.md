@@ -162,7 +162,7 @@ useWebglFire(canvasRef, sliderValue, isActive, () => '#a857f7')
 | `background` | `String` | `'#000000'` | 卡片背景色（任意 CSS 颜色值） |
 | `borderRadius` | `String \| Number` | `20` | 卡片圆角半径（像素） |
 | `showHelp` | `Boolean` | `true` | 是否显示头部的帮助图标 |
-| `helpText` | `String` | `'拖动滑块调整 AI 思考深度'` | 点击帮助图标时显示的 tooltip 内容 |
+| `helpText` | `String` | `'Drag the slider to adjust AI thinking depth'` | 点击帮助图标时显示的 tooltip 内容 |
 
 ### 颜色属性
 

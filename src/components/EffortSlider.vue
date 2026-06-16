@@ -108,7 +108,7 @@ const props = defineProps({
   background:     { type: String,  default: '#000000' },
   borderRadius:   { type: [String, Number], default: 20 },
   showHelp:       { type: Boolean, default: true },
-  helpText:       { type: String,  default: '拖动滑块调整 AI 思考深度' },
+  helpText:       { type: String,  default: 'Drag the slider to adjust AI thinking depth' },
   labelColor:     { type: String,  default: '#b0b0c7' },
   statusColor:    { type: String,  default: '#a1a1aa' },
   activeColor:    { type: String,  default: '#c084fc' },
@@ -517,15 +517,17 @@ input[type='range'].glowing::-webkit-slider-thumb:active {
 }
 
 input[type='range']::-moz-range-thumb {
-  width: 26px;
-  height: 26px;
-  border-radius: 9px;
+  width: 29px;
+  height: 29px;
+  border-radius: 10px;
   background: linear-gradient(170deg, var(--thumb-color) 0%, color-mix(in srgb, var(--thumb-color) 88%, #000) 40%, color-mix(in srgb, var(--thumb-color) 78%, #000) 100%);
   border: 0.5px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.18),
-    0 2px 6px rgba(0, 0, 0, 0.25), 0 6px 16px rgba(0, 0, 0, 0.12);
+    0 2px 6px rgba(0, 0, 0, 0.25), 0 6px 16px rgba(0, 0, 0, 0.12),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -0.5px 0 rgba(0, 0, 0, 0.06);
   cursor: grab;
-  transition: box-shadow 0.4s ease;
+  transition: box-shadow 0.4s ease, transform 0.15s ease;
 }
 
 input[type='range']::-moz-range-thumb:active {
@@ -537,14 +539,18 @@ input[type='range'].glowing::-moz-range-thumb {
   box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.18),
     0 2px 6px rgba(0, 0, 0, 0.25), 0 6px 16px rgba(0, 0, 0, 0.12),
     0 0 28px color-mix(in srgb, var(--active-color) 50%, transparent),
-    0 0 50px color-mix(in srgb, var(--active-color) 25%, transparent);
+    0 0 50px color-mix(in srgb, var(--active-color) 25%, transparent),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -0.5px 0 rgba(0, 0, 0, 0.06);
 }
 
 input[type='range'].glowing::-moz-range-thumb:active {
   box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.2),
     0 1px 3px rgba(0, 0, 0, 0.3), 0 3px 8px rgba(0, 0, 0, 0.15),
     0 0 32px color-mix(in srgb, var(--active-color) 55%, transparent),
-    0 0 56px color-mix(in srgb, var(--active-color) 30%, transparent);
+    0 0 56px color-mix(in srgb, var(--active-color) 30%, transparent),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
 }
 
 input[type='range']::-moz-range-track {

@@ -162,7 +162,7 @@ useWebglFire(canvasRef, sliderValue, isActive, () => '#a857f7')
 | `background` | `String` | `'#000000'` | Card background color (any CSS color value) |
 | `borderRadius` | `String \| Number` | `20` | Card border radius in pixels |
 | `showHelp` | `Boolean` | `true` | Whether to display the help icon in the header |
-| `helpText` | `String` | `'拖动滑块调整 AI 思考深度'` | Tooltip content shown when the help icon is clicked |
+| `helpText` | `String` | `'Drag the slider to adjust AI thinking depth'` | Tooltip content shown when the help icon is clicked |
 
 ### Color Props
 

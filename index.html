@@ -815,16 +815,6 @@
               ]),
               'GitHub',
             ]),
-            h('button', {
-              class: 'github-link',
-              onClick() { toggleLang() },
-              style: {
-                cursor: 'pointer',
-                position: 'absolute',
-                top: '18px',
-                right: '100px',
-              },
-            }, isEn.value ? '中文' : 'EN'),
             h('div', {
               style: {
                 display: 'flex', gap: '4px', position: 'absolute',
@@ -913,7 +903,17 @@
               (previewMode.value === 'component' ? sections : fireSections)
                 .find(s => s.key === activeTab.value).build()
             )
-          ])
+          ]),
+          h('button', {
+            onClick() { toggleLang() },
+            style: {
+              position: 'fixed', top: '16px', right: '16px', zIndex: 100,
+              padding: '5px 14px', borderRadius: '6px', border: '1px solid #27272d',
+              background: '#1a1a1f', color: '#a1a1a9', cursor: 'pointer',
+              fontSize: '12px', fontWeight: '500', fontFamily: "'Noto Sans SC', sans-serif",
+              transition: 'all 0.15s',
+            }
+          }, isEn.value ? '中文' : 'EN'),
         ])
       }
     })

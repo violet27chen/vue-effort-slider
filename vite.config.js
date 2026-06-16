@@ -17,12 +17,14 @@ export default defineConfig({
       }
     : {
         copyPublicDir: false,
-        cssCodeSplit: false,
         lib: {
           entry: {
             'vue-effort-slider': resolve(__dirname, 'src/index.js'),
+            EffortSlider: resolve(__dirname, 'src/EffortSlider.js'),
             composables: resolve(__dirname, 'src/composables.js'),
             shaders: resolve(__dirname, 'src/shaders.js'),
+            useSliderState: resolve(__dirname, 'src/useSliderState.js'),
+            useWebglFire: resolve(__dirname, 'src/useWebglFire.js'),
           },
           formats: ['es', 'cjs'],
           fileName: (format, entryName) =>

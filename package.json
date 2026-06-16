@@ -1,7 +1,7 @@
 {
   "name": "vue-effort-slider",
   "private": false,
-  "version": "1.2.0",
+  "version": "1.2.3",
   "type": "module",
   "description": "A Vue 3 range slider component with WebGL fire effects",
   "main": "./dist/vue-effort-slider.cjs",
@@ -11,6 +11,10 @@
       "import": "./dist/vue-effort-slider.js",
       "require": "./dist/vue-effort-slider.cjs"
     },
+    "./EffortSlider": {
+      "import": "./dist/EffortSlider.js",
+      "require": "./dist/EffortSlider.cjs"
+    },
     "./composables": {
       "import": "./dist/composables.js",
       "require": "./dist/composables.cjs"
@@ -18,6 +22,14 @@
     "./shaders": {
       "import": "./dist/shaders.js",
       "require": "./dist/shaders.cjs"
+    },
+    "./useSliderState": {
+      "import": "./dist/useSliderState.js",
+      "require": "./dist/useSliderState.cjs"
+    },
+    "./useWebglFire": {
+      "import": "./dist/useWebglFire.js",
+      "require": "./dist/useWebglFire.cjs"
     },
     "./style.css": {
       "import": "./dist/vue-effort-slider.css",

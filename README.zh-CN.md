@@ -1,5 +1,8 @@
 # vue-effort-slider
 
+[![npm version](https://img.shields.io/npm/v/vue-effort-slider.svg)](https://www.npmjs.com/package/vue-effort-slider)
+[![license](https://img.shields.io/npm/l/vue-effort-slider.svg)](https://opensource.org/licenses/MIT)
+
 [English](./README.md) | [中文](./README.zh-CN.md)
 
 一个高度可定制的 Vue 3 范围滑块组件，内置实时 WebGL 火焰拖尾特效。灵感来自 Claude Code 的 Effort 滑块，支持平滑吸附动画、动态颜色主题和 GPU 加速粒子渲染。
@@ -156,11 +159,40 @@ const value = ref(50)
 import { EffortSlider } from 'vue-effort-slider'
 import 'vue-effort-slider/style.css'
 
-// 仅 composables
+// 仅组件
+import { EffortSlider } from 'vue-effort-slider/EffortSlider'
+
+// 单独导入 composable
+import { useSliderState } from 'vue-effort-slider/useSliderState'
+import { useWebglFire } from 'vue-effort-slider/useWebglFire'
+
+// 或从 composables 批量导入
 import { useSliderState, useWebglFire } from 'vue-effort-slider/composables'
 
 // 仅着色器（GLSL 源码字符串）
 import { VERT, FRAG_SIM, FRAG_BLUR, FRAG_COMP } from 'vue-effort-slider/shaders'
+```
+
+### 独立火焰画布
+
+使用 `useWebglFire` 将火焰拖尾效果添加到任意 canvas：
+
+```vue
+<template>
+  <canvas ref="canvasRef" width="400" height="60"
+    style="width:400px;height:60px;border-radius:10px;background:#0c0c0c" />
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { useWebglFire } from 'vue-effort-slider/useWebglFire'
+
+const canvasRef = ref(null)
+const sliderValue = ref(100)
+const isActive = ref(true)
+
+useWebglFire(canvasRef, sliderValue, isActive, () => '#a857f7')
+</script>
 ```
 
 ## Props

@@ -406,8 +406,9 @@
   <div id="app"></div>
 
   <script type="module">
-    import { createApp, reactive, ref, h, nextTick } from 'vue'
+    import { createApp, reactive, ref, h, nextTick, toRef } from 'vue'
     import EffortSlider from './src/components/EffortSlider.vue'
+    import { useWebglFire } from './src/components/composables/useWebglFire.js'
 
     const S = reactive({
       modelValue: 75,
@@ -432,7 +433,12 @@
       highlightColor: '#c084fc',
       trackColor: '#0c0c0c',
       dotColor: '#494950',
+      fireActive: true,
+      fireSliderValue: 100,
     })
+
+    /* ---- fire sub-module ---- */
+    const previewMode = ref('component')
 
     function genCode() {
       const L = []
@@ -486,7 +492,13 @@
       L.push('<!-- 安装: npm install vue-effort-slider -->')
       L.push('')
       L.push('<template>')
+      L.push('  <!-- 完整组件（含 WebGL 火焰效果） -->')
       L.push('  <EffortSlider v-model="value" />')
+      L.push('')
+      L.push('  <!-- useSliderState 示例 -->')
+      L.push('  <input type="range" min="0" max="100" :value="sliderValue" @input="onInput" />')
+      L.push('  <p>{{ statusLabel }} | {{ isFull }}</p>')
+      L.push('  <button @click="setValue(100)">Max</button>')
       L.push('</template>')
       L.push('')
       L.push('<script setup>')
@@ -496,14 +508,44 @@
       L.push("import { EffortSlider } from 'vue-effort-slider'")
       L.push("import 'vue-effort-slider/style.css'")
       L.push('')
-      L.push('// composables — 自定义滑块逻辑')
-      L.push("import { useSliderState } from 'vue-effort-slider/composables'")
-      L.push("import { useWebglFire } from 'vue-effort-slider/composables'")
+      L.push('// 单独导入 composable')
+      L.push("import { useSliderState } from 'vue-effort-slider/useSliderState'")
+      L.push("import { useWebglFire } from 'vue-effort-slider/useWebglFire'")
       L.push('')
       L.push('// shaders — GLSL 着色器源码')
       L.push("import { VERT, FRAG_SIM, FRAG_BLUR, FRAG_COMP } from 'vue-effort-slider/shaders'")
       L.push('')
       L.push(`const value = ref(${S.modelValue})`)
+      L.push('')
+      L.push('// useSliderState 用法')
+      L.push('const {')
+      L.push('  sliderValue, isActive, isFull, statusLabel,')
+      L.push('  onInput, setValue')
+      L.push("} = useSliderState({ initialValue: 50, threshold: 100 })")
+      L.push('<\/script>')
+      return L.join('\n')
+    }
+
+    function genFireCode() {
+      const L = []
+      L.push('<!-- 框架: Vue 3 + <script setup> -->')
+      L.push('<!-- 安装: npm install vue-effort-slider -->')
+      L.push('')
+      L.push('<template>')
+      L.push('  <canvas ref="canvasRef" width="400" height="60"')
+      L.push('    style="width:400px;height:60px;border-radius:10px;background:#0c0c0c" />')
+      L.push('</template>')
+      L.push('')
+      L.push('<script setup>')
+      L.push("import { ref } from 'vue'")
+      L.push("import { useWebglFire } from 'vue-effort-slider/useWebglFire'")
+      L.push('')
+      L.push('const canvasRef = ref(null)')
+      L.push(`const sliderValue = ref(${S.fireSliderValue})`)
+      L.push(`const isActive = ref(${S.fireActive})`)
+      L.push('')
+      L.push(`// 颜色: ${S.trailColor}`)
+      L.push("useWebglFire(canvasRef, sliderValue, isActive, () => '#" + S.trailColor.slice(1) + "')")
       L.push('<\/script>')
       return L.join('\n')
     }
@@ -554,6 +596,33 @@
     ])
 
     /* ---- section builders ---- */
+    const fireSections = [
+      { key: 'fire', label: '火焰', build: () => [
+        strip('火焰设置',
+          field('启用火焰', chk('fireActive', '开启')),
+          field('滑块值', num('fireSliderValue', 0, 100)),
+          field('火焰色', clr('trailColor')),
+        ),
+      ]},
+      { key: 'fire-code', label: '代码', build: () => [
+        h('div', { class: 'code-strip' }, [
+          h('div', { class: 'code-head' }, [
+            h('span', { class: 'code-head-title' }, '子模块火焰 — useWebglFire'),
+            h('button', {
+              class: 'copy-btn',
+              onClick() {
+                navigator.clipboard.writeText(genFireCode())
+                const btn = document.querySelector('.copy-btn')
+                btn.textContent = '已复制'
+                setTimeout(() => btn.textContent = '复制', 1500)
+              }
+            }, '复制')
+          ]),
+          h('pre', { id: 'code-pre', innerHTML: highlight(genFireCode()) })
+        ])
+      ]},
+    ]
+
     const sections = [
       { key: 'basic', label: '基础', build: () => [
         strip('基础设置',
@@ -655,6 +724,10 @@
     const root = createApp({
       setup() {
         const activeTab = ref('basic')
+        const fireCanvasRef = ref(null)
+        const fireActive = toRef(S, 'fireActive')
+        const fireSliderValue = toRef(S, 'fireSliderValue')
+        useWebglFire(fireCanvasRef, fireSliderValue, fireActive, () => S.trailColor)
 
         return () => h('div', { class: 'page' }, [
           h('div', { class: 'preview-pane' }, [
@@ -670,7 +743,41 @@
               ]),
               'GitHub',
             ]),
-            h('div', { style: { transform: `translate(${S.x}px, ${S.y}px)` } }, [
+            h('div', {
+              style: {
+                display: 'flex', gap: '4px', position: 'absolute',
+                bottom: '20px', left: '50%', transform: 'translateX(-50%)',
+                background: '#1a1a1f', borderRadius: '8px', padding: '3px',
+                border: '1px solid #27272d',
+              }
+            }, [
+              h('button', {
+                onClick() { previewMode.value = 'component'; activeTab.value = 'basic' },
+                style: {
+                  padding: '5px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer',
+                  fontSize: '12px', fontWeight: '500', fontFamily: "'Noto Sans SC', sans-serif",
+                  background: previewMode.value === 'component' ? '#a78bfa' : 'transparent',
+                  color: previewMode.value === 'component' ? '#fff' : '#a1a1a9',
+                  transition: 'all 0.15s',
+                }
+              }, '完整组件'),
+              h('button', {
+                onClick() { previewMode.value = 'fire'; activeTab.value = 'fire' },
+                style: {
+                  padding: '5px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer',
+                  fontSize: '12px', fontWeight: '500', fontFamily: "'Noto Sans SC', sans-serif",
+                  background: previewMode.value === 'fire' ? '#a78bfa' : 'transparent',
+                  color: previewMode.value === 'fire' ? '#fff' : '#a1a1a9',
+                  transition: 'all 0.15s',
+                }
+              }, '火焰效果'),
+            ]),
+            h('div', {
+              style: {
+                transform: `translate(${S.x}px, ${S.y}px)`,
+                display: previewMode.value === 'component' ? '' : 'none',
+              }
+            }, [
               h(EffortSlider, {
                 modelValue: S.modelValue,
                 'onUpdate:modelValue': v => { S.modelValue = v; paintCode() },
@@ -685,26 +792,44 @@
                 thumbColor: S.thumbColor, trackColor: S.trackColor,
                 dotColor: S.dotColor,
               })
+            ]),
+            h('div', {
+              style: {
+                width: '100%', maxWidth: '400px',
+                visibility: previewMode.value === 'fire' ? 'visible' : 'hidden',
+                position: previewMode.value === 'fire' ? '' : 'absolute',
+                pointerEvents: previewMode.value === 'fire' ? '' : 'none',
+              }
+            }, [
+              h('canvas', {
+                ref: fireCanvasRef,
+                width: 400, height: 60,
+                style: 'width:100%;height:60px;border-radius:10px;background:#0c0c0c;display:block',
+              }),
+              h('p', { style: 'font-size:12px;color:#71717a;margin-top:8px;text-align:center' },
+                `slider: ${S.fireSliderValue} (>=95 有火焰) | active: ${S.fireActive}`
+              ),
             ])
           ]),
           h('div', { class: 'config-pane' }, [
             h('div', { class: 'pane-header' }, [
-              h('h1', { class: 'page-title' }, '组件配置'),
+              h('h1', { class: 'page-title' }, previewMode.value === 'component' ? '组件配置' : '火焰配置'),
               h('p', { class: 'page-sub' }, '调整参数，实时预览效果'),
             ]),
 
             h('nav', { class: 'nav' },
-              sections.map(s => h('button', {
+              (previewMode.value === 'component' ? sections : fireSections).map(s => h('button', {
                 class: ['nav-item', activeTab.value === s.key && 'active'],
                 onClick() {
                   activeTab.value = s.key
-                  if (s.key === 'code') nextTick(paintCode)
+                  if (s.key === 'code' || s.key === 'fire-code') nextTick(paintCode)
                 }
               }, s.label))
             ),
 
             h('div', { class: 'config-content' },
-              sections.find(s => s.key === activeTab.value).build()
+              (previewMode.value === 'component' ? sections : fireSections)
+                .find(s => s.key === activeTab.value).build()
             )
           ])
         ])
@@ -757,7 +882,12 @@
     function paintCode() {
       const el = document.getElementById('code-pre')
       if (el) {
-        el.innerHTML = highlight(genCode())
+        const code = previewMode.value === 'fire' ? genFireCode() : genCode()
+        el.innerHTML = highlight(code)
+      }
+      const sub = document.getElementById('code-sub-pre')
+      if (sub) {
+        sub.innerHTML = highlight(genSubCode())
       }
     }
 

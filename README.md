@@ -1,5 +1,8 @@
 # vue-effort-slider
 
+[![npm version](https://img.shields.io/npm/v/vue-effort-slider.svg)](https://www.npmjs.com/package/vue-effort-slider)
+[![license](https://img.shields.io/npm/l/vue-effort-slider.svg)](https://opensource.org/licenses/MIT)
+
 [English](./README.md) | [中文](./README.zh-CN.md)
 
 A highly customizable Vue 3 range slider component with real-time WebGL fire trail effects. Inspired by Claude Code's effort slider, featuring smooth snap-to-step animation, dynamic color theming, and GPU-accelerated particle rendering.
@@ -87,7 +90,7 @@ const app = createApp({
   },
   template: `
     <EffortSlider v-model="value" />
-    <p style="color:#71717a;text-align:center;margin-top:16px">当前值: {{ value }}</p>
+    <p style="color:#71717a;text-align:center;margin-top:16px">Current value: {{ value }}</p>
   `
 })
 app.component('EffortSlider', EffortSlider)
@@ -156,11 +159,40 @@ Each module can be imported separately for tree-shaking:
 import { EffortSlider } from 'vue-effort-slider'
 import 'vue-effort-slider/style.css'
 
-// Composables only
+// Component only
+import { EffortSlider } from 'vue-effort-slider/EffortSlider'
+
+// Import composable individually
+import { useSliderState } from 'vue-effort-slider/useSliderState'
+import { useWebglFire } from 'vue-effort-slider/useWebglFire'
+
+// Or batch import from composables
 import { useSliderState, useWebglFire } from 'vue-effort-slider/composables'
 
 // Shaders only (GLSL source strings)
 import { VERT, FRAG_SIM, FRAG_BLUR, FRAG_COMP } from 'vue-effort-slider/shaders'
+```
+
+### Standalone Fire Canvas
+
+Use `useWebglFire` to add the fire trail effect to any canvas:
+
+```vue
+<template>
+  <canvas ref="canvasRef" width="400" height="60"
+    style="width:400px;height:60px;border-radius:10px;background:#0c0c0c" />
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { useWebglFire } from 'vue-effort-slider/useWebglFire'
+
+const canvasRef = ref(null)
+const sliderValue = ref(100)
+const isActive = ref(true)
+
+useWebglFire(canvasRef, sliderValue, isActive, () => '#a857f7')
+</script>
 ```
 
 ## Props

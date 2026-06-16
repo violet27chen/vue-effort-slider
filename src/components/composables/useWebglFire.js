@@ -48,9 +48,21 @@ export function useWebglFire(canvasRef, sliderValue, isActive, getTrailColor) {
 
   watch(isActive, now => {
     if (now && ultraStart == null) ultraStart = performance.now()
-    else if (!now) ultraStart = null
-    if (now) ensureLoop()
-  }, { flush: 'post' })
+    else if (!now) {
+      ultraStart = null
+      // 立即清空画布并停止循环
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null }
+      loopRunning = false
+      idleFrames = 0
+      wasActive = false
+      if (gl && canvasEl) {
+        gl.viewport(0, 0, canvasEl.width, canvasEl.height)
+        gl.clearColor(0, 0, 0, 1)
+        gl.clear(gl.COLOR_BUFFER_BIT)
+      }
+    }
+    if (now && programsReady) ensureLoop()
+  }, { immediate: true, flush: 'post' })
 
   /* ── lifecycle ────────────────────────────── */
   onMounted(() => nextTick(init))
@@ -108,6 +120,9 @@ export function useWebglFire(canvasRef, sliderValue, isActive, getTrailColor) {
 
     // initial size
     resize()
+
+    // start render loop if already active
+    if (cachedActive) ensureLoop()
   }
 
   function resize() {

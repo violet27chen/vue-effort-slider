@@ -410,6 +410,73 @@
     import EffortSlider from './src/components/EffortSlider.vue'
     import { useWebglFire } from './src/components/composables/useWebglFire.js'
 
+    /* ---- i18n ---- */
+    const isEn = navigator.language.startsWith('en')
+    const T = {
+      pageTitle:      isEn ? 'Vue Effort Slider — Config' : 'Vue Effort Slider — 组件配置',
+      livePreview:    isEn ? 'Live Preview' : '实时预览',
+      fullComponent:  isEn ? 'Component' : '完整组件',
+      fireEffect:     isEn ? 'Fire Effect' : '火焰效果',
+      componentConfig:isEn ? 'Component Config' : '组件配置',
+      fireConfig:     isEn ? 'Fire Config' : '火焰配置',
+      adjustParams:   isEn ? 'Adjust parameters, preview in real time' : '调整参数，实时预览效果',
+      // nav tabs
+      tabBasic:   isEn ? 'Basic' : '基础',
+      tabLabel:   isEn ? 'Label' : '标签',
+      tabEndPt:   isEn ? 'Endpoints' : '端点',
+      tabGear:    isEn ? 'Gears' : '挡位',
+      tabHelp:    isEn ? 'Help' : '帮助',
+      tabStyle:   isEn ? 'Style' : '外观',
+      tabCode:    isEn ? 'Code' : '代码',
+      tabFire:    isEn ? 'Fire' : '火焰',
+      // basic
+      basicSet:  isEn ? 'Basic Settings' : '基础设置',
+      curVal:    isEn ? 'Value' : '当前值',
+      width:     isEn ? 'Width' : '宽度',
+      posX:      isEn ? 'Position X' : '位置 X',
+      posY:      isEn ? 'Position Y' : '位置 Y',
+      radius:    isEn ? 'Radius' : '圆角',
+      thresh:    isEn ? 'Threshold' : '阈值',
+      // label
+      lbl:       isEn ? 'Label' : '标签',
+      lblText:   isEn ? 'Label Text' : '标签文字',
+      // endpoint
+      endTxt:    isEn ? 'Endpoint Text' : '端点文字',
+      left:      isEn ? 'Left' : '左侧',
+      right:     isEn ? 'Right' : '右侧',
+      color:     isEn ? 'Color' : '颜色',
+      // gear
+      gear:      isEn ? 'Gears' : '挡位',
+      gearName:  isEn ? 'Gear Names' : '挡位名称',
+      fullClr:   isEn ? 'Active Text' : '满挡文字色',
+      thumbClr:  isEn ? 'Thumb' : '滑块色',
+      trackClr:  isEn ? 'Track' : '轨道色',
+      dotClr:    isEn ? 'Dots' : '圆点色',
+      hiClr:     isEn ? 'Highlight' : '高亮色',
+      trailClr:  isEn ? 'Trail' : '拖尾色',
+      // help
+      showHelp:  isEn ? 'Show Help' : '显示帮助',
+      enabled:   isEn ? 'On' : '启用',
+      helpTxt:   isEn ? 'Help Text' : '帮助文字',
+      // style
+      appearance:isEn ? 'Style' : '外观',
+      bgClr:     isEn ? 'Background' : '背景色',
+      // code
+      codeFull:  isEn ? 'Component — Template + Script' : '完整组件 — 模板 + 脚本',
+      codeSub:   isEn ? 'Sub-modules — Tree-shakable' : '子模块 — 按需导入',
+      codeFire:  isEn ? 'Fire Module — useWebglFire' : '子模块火焰 — useWebglFire',
+      copy:      isEn ? 'Copy' : '复制',
+      copied:    isEn ? 'Copied!' : '已复制',
+      // fire
+      fireSet:   isEn ? 'Fire Settings' : '火焰设置',
+      fireOn:    isEn ? 'Enable' : '开启',
+      sliderVal: isEn ? 'Slider Value' : '滑块值',
+      fireClr:   isEn ? 'Fire Color' : '火焰色',
+      // preview info
+      fireInfo:  v => isEn ? `slider: ${v} (>=95 active) | active:` : `slider: ${v} (>=95 有火焰) | active:`,
+    }
+    document.title = T.pageTitle
+
     const S = reactive({
       modelValue: 75,
       width: 376,
@@ -443,8 +510,8 @@
     function genCode() {
       const L = []
       const useXY = S.x !== 0 || S.y !== 0
-      L.push('<!-- 框架: Vue 3 + <script setup> -->')
-      L.push('<!-- 安装: npm install vue-effort-slider -->')
+      L.push('<!-- Vue 3 + <script setup> -->')
+      L.push('<!-- npm install vue-effort-slider -->')
       L.push('<template>')
       if (useXY) L.push(`  <div style="transform: translate(${S.x}px, ${S.y}px)">`)
       L.push('  <EffortSlider v-model="value"')
@@ -488,14 +555,14 @@
 
     function genSubCode() {
       const L = []
-      L.push('<!-- 框架: Vue 3 + <script setup> -->')
-      L.push('<!-- 安装: npm install vue-effort-slider -->')
+      L.push('<!-- Vue 3 + <script setup> -->')
+      L.push('<!-- npm install vue-effort-slider -->')
       L.push('')
       L.push('<template>')
-      L.push('  <!-- 完整组件（含 WebGL 火焰效果） -->')
+      L.push('  <!-- Full component (with WebGL fire) -->')
       L.push('  <EffortSlider v-model="value" />')
       L.push('')
-      L.push('  <!-- useSliderState 示例 -->')
+      L.push('  <!-- useSliderState example -->')
       L.push('  <input type="range" min="0" max="100" :value="sliderValue" @input="onInput" />')
       L.push('  <p>{{ statusLabel }} | {{ isFull }}</p>')
       L.push('  <button @click="setValue(100)">Max</button>')
@@ -504,20 +571,20 @@
       L.push('<script setup>')
       L.push("import { ref } from 'vue'")
       L.push('')
-      L.push('// 完整组件（含 WebGL 火焰效果）')
+      L.push('// Full component (with WebGL fire)')
       L.push("import { EffortSlider } from 'vue-effort-slider'")
       L.push("import 'vue-effort-slider/style.css'")
       L.push('')
-      L.push('// 单独导入 composable')
+      L.push('// Individual composable imports')
       L.push("import { useSliderState } from 'vue-effort-slider/useSliderState'")
       L.push("import { useWebglFire } from 'vue-effort-slider/useWebglFire'")
       L.push('')
-      L.push('// shaders — GLSL 着色器源码')
+      L.push('// Shaders — GLSL source strings')
       L.push("import { VERT, FRAG_SIM, FRAG_BLUR, FRAG_COMP } from 'vue-effort-slider/shaders'")
       L.push('')
       L.push(`const value = ref(${S.modelValue})`)
       L.push('')
-      L.push('// useSliderState 用法')
+      L.push('// useSliderState usage')
       L.push('const {')
       L.push('  sliderValue, isActive, isFull, statusLabel,')
       L.push('  onInput, setValue')
@@ -528,8 +595,8 @@
 
     function genFireCode() {
       const L = []
-      L.push('<!-- 框架: Vue 3 + <script setup> -->')
-      L.push('<!-- 安装: npm install vue-effort-slider -->')
+      L.push('<!-- Vue 3 + <script setup> -->')
+      L.push('<!-- npm install vue-effort-slider -->')
       L.push('')
       L.push('<template>')
       L.push('  <canvas ref="canvasRef" width="400" height="60"')
@@ -544,7 +611,7 @@
       L.push(`const sliderValue = ref(${S.fireSliderValue})`)
       L.push(`const isActive = ref(${S.fireActive})`)
       L.push('')
-      L.push(`// 颜色: ${S.trailColor}`)
+      L.push(`// Color: ${S.trailColor}`)
       L.push("useWebglFire(canvasRef, sliderValue, isActive, () => '#" + S.trailColor.slice(1) + "')")
       L.push('<\/script>')
       return L.join('\n')
@@ -597,26 +664,26 @@
 
     /* ---- section builders ---- */
     const fireSections = [
-      { key: 'fire', label: '火焰', build: () => [
-        strip('火焰设置',
-          field('启用火焰', chk('fireActive', '开启')),
-          field('滑块值', num('fireSliderValue', 0, 100)),
-          field('火焰色', clr('trailColor')),
+      { key: 'fire', label: T.tabFire, build: () => [
+        strip(T.fireSet,
+          field(T.fireOn, chk('fireActive', T.enabled)),
+          field(T.sliderVal, num('fireSliderValue', 0, 100)),
+          field(T.fireClr, clr('trailColor')),
         ),
       ]},
-      { key: 'fire-code', label: '代码', build: () => [
+      { key: 'fire-code', label: T.tabCode, build: () => [
         h('div', { class: 'code-strip' }, [
           h('div', { class: 'code-head' }, [
-            h('span', { class: 'code-head-title' }, '子模块火焰 — useWebglFire'),
+            h('span', { class: 'code-head-title' }, T.codeFire),
             h('button', {
               class: 'copy-btn',
               onClick() {
                 navigator.clipboard.writeText(genFireCode())
                 const btn = document.querySelector('.copy-btn')
-                btn.textContent = '已复制'
-                setTimeout(() => btn.textContent = '复制', 1500)
+                btn.textContent = T.copied
+                setTimeout(() => btn.textContent = T.copy, 1500)
               }
-            }, '复制')
+            }, T.copy)
           ]),
           h('pre', { id: 'code-pre', innerHTML: highlight(genFireCode()) })
         ])
@@ -624,41 +691,41 @@
     ]
 
     const sections = [
-      { key: 'basic', label: '基础', build: () => [
-        strip('基础设置',
-          field('当前值', num('modelValue', 0, 100)),
-          field('宽度', num('width', 200, 600)),
-          field('位置 X', num('x', -200, 200)),
-          field('位置 Y', num('y', -200, 200)),
-          field('圆角', num('borderRadius', 0, 50)),
-          field('阈值', num('threshold', 0, 100)),
+      { key: 'basic', label: T.tabBasic, build: () => [
+        strip(T.basicSet,
+          field(T.curVal, num('modelValue', 0, 100)),
+          field(T.width, num('width', 200, 600)),
+          field(T.posX, num('x', -200, 200)),
+          field(T.posY, num('y', -200, 200)),
+          field(T.radius, num('borderRadius', 0, 50)),
+          field(T.thresh, num('threshold', 0, 100)),
         ),
       ]},
-      { key: 'label', label: '标签', build: () => [
-        strip('标签',
-          field('标签文字', txt('label'), sep(), clr('labelColor')),
+      { key: 'label', label: T.tabLabel, build: () => [
+        strip(T.lbl,
+          field(T.lblText, txt('label'), sep(), clr('labelColor')),
         ),
       ]},
-      { key: 'endpoint', label: '端点', build: () => [
-        strip('端点文字',
-          field('左侧',
+      { key: 'endpoint', label: T.tabEndPt, build: () => [
+        strip(T.endTxt,
+          field(T.left,
             h('input', {
               type: 'text', value: S.scaleLabels[0],
               onInput(e) { S.scaleLabels[0] = e.target.value; paintCode() }
             }),
           ),
-          field('右侧',
+          field(T.right,
             h('input', {
               type: 'text', value: S.scaleLabels[1],
               onInput(e) { S.scaleLabels[1] = e.target.value; paintCode() }
             }),
           ),
-          field('颜色', clr('scaleLabelColor')),
+          field(T.color, clr('scaleLabelColor')),
         ),
       ]},
-      { key: 'gear', label: '挡位', build: () => [
-        strip('挡位',
-          field('挡位名称',
+      { key: 'gear', label: T.tabGear, build: () => [
+        strip(T.gear,
+          field(T.gearName,
             h('div', { class: 'status-grid' }, Object.keys(S.statusLabels).map(k =>
               h('input', {
                 type: 'text', value: S.statusLabels[k],
@@ -667,53 +734,53 @@
             )),
             sep(), clr('statusColor')
           ),
-          field('满挡文字色', clr('activeColor')),
-          field('滑块色', clr('thumbColor')),
-          field('轨道色', clr('trackColor')),
-          field('圆点色', clr('dotColor')),
-          field('高亮色', clr('highlightColor')),
-          field('拖尾色', clr('trailColor')),
+          field(T.fullClr, clr('activeColor')),
+          field(T.thumbClr, clr('thumbColor')),
+          field(T.trackClr, clr('trackColor')),
+          field(T.dotClr, clr('dotColor')),
+          field(T.hiClr, clr('highlightColor')),
+          field(T.trailClr, clr('trailColor')),
         ),
       ]},
-      { key: 'help', label: '帮助', build: () => [
-        strip('帮助',
-          field('显示帮助', chk('showHelp', '启用'), sep(), clr('helpIconColor')),
-          field('帮助文字', txt('helpText')),
+      { key: 'help', label: T.tabHelp, build: () => [
+        strip(T.tabHelp,
+          field(T.showHelp, chk('showHelp', T.enabled), sep(), clr('helpIconColor')),
+          field(T.helpTxt, txt('helpText')),
         ),
       ]},
-      { key: 'style', label: '外观', build: () => [
-        strip('外观',
-          field('背景色', clr('background'), txt('background', '80px')),
+      { key: 'style', label: T.tabStyle, build: () => [
+        strip(T.appearance,
+          field(T.bgClr, clr('background'), txt('background', '80px')),
         ),
       ]},
-      { key: 'code', label: '代码', build: () => [
+      { key: 'code', label: T.tabCode, build: () => [
         h('div', { class: 'code-strip' }, [
           h('div', { class: 'code-head' }, [
-            h('span', { class: 'code-head-title' }, '完整组件 — 模板 + 脚本'),
+            h('span', { class: 'code-head-title' }, T.codeFull),
             h('button', {
               class: 'copy-btn',
               onClick() {
                 navigator.clipboard.writeText(genCode())
                 const btn = document.querySelector('.copy-btn')
-                btn.textContent = '已复制'
-                setTimeout(() => btn.textContent = '复制', 1500)
+                btn.textContent = T.copied
+                setTimeout(() => btn.textContent = T.copy, 1500)
               }
-            }, '复制')
+            }, T.copy)
           ]),
           h('pre', { id: 'code-pre', innerHTML: highlight(genCode()) })
         ]),
         h('div', { class: 'code-strip' }, [
           h('div', { class: 'code-head' }, [
-            h('span', { class: 'code-head-title' }, '子模块 — 按需导入'),
+            h('span', { class: 'code-head-title' }, T.codeSub),
             h('button', {
               class: 'copy-btn',
               onClick() {
                 navigator.clipboard.writeText(genSubCode())
                 const btn = document.querySelectorAll('.copy-btn')[1]
-                btn.textContent = '已复制'
-                setTimeout(() => btn.textContent = '复制', 1500)
+                btn.textContent = T.copied
+                setTimeout(() => btn.textContent = T.copy, 1500)
               }
-            }, '复制')
+            }, T.copy)
           ]),
           h('pre', { id: 'code-sub-pre', innerHTML: highlight(genSubCode()) })
         ])
@@ -731,7 +798,7 @@
 
         return () => h('div', { class: 'page' }, [
           h('div', { class: 'preview-pane' }, [
-            h('div', { class: 'preview-label' }, '实时预览'),
+            h('div', { class: 'preview-label' }, T.livePreview),
             h('a', {
               class: 'github-link',
               href: 'https://github.com/violet27chen/vue-effort-slider',
@@ -760,7 +827,7 @@
                   color: previewMode.value === 'component' ? '#fff' : '#a1a1a9',
                   transition: 'all 0.15s',
                 }
-              }, '完整组件'),
+              }, T.fullComponent),
               h('button', {
                 onClick() { previewMode.value = 'fire'; activeTab.value = 'fire' },
                 style: {
@@ -770,7 +837,7 @@
                   color: previewMode.value === 'fire' ? '#fff' : '#a1a1a9',
                   transition: 'all 0.15s',
                 }
-              }, '火焰效果'),
+              }, T.fireEffect),
             ]),
             h('div', {
               style: {
@@ -807,14 +874,14 @@
                 style: 'width:100%;height:60px;border-radius:10px;background:#0c0c0c;display:block',
               }),
               h('p', { style: 'font-size:12px;color:#71717a;margin-top:8px;text-align:center' },
-                `slider: ${S.fireSliderValue} (>=95 有火焰) | active: ${S.fireActive}`
+                T.fireInfo(S.fireSliderValue) + ' ' + S.fireActive
               ),
             ])
           ]),
           h('div', { class: 'config-pane' }, [
             h('div', { class: 'pane-header' }, [
-              h('h1', { class: 'page-title' }, previewMode.value === 'component' ? '组件配置' : '火焰配置'),
-              h('p', { class: 'page-sub' }, '调整参数，实时预览效果'),
+              h('h1', { class: 'page-title' }, previewMode.value === 'component' ? T.componentConfig : T.fireConfig),
+              h('p', { class: 'page-sub' }, T.adjustParams),
             ]),
 
             h('nav', { class: 'nav' },
@@ -851,7 +918,6 @@
         let e = esc(line)
         if (e.trim().startsWith('&lt;!--')) return `<span class="cmt">${e}</span>`
 
-        // tokenize: split by strings first to avoid inner matches
         const parts = []
         let rest = e
         while (rest) {

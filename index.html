@@ -475,6 +475,22 @@
       return L.join('\n')
     }
 
+    function genSubCode() {
+      const L = []
+      L.push('<!-- 子模块单独导入 -->')
+      L.push('')
+      L.push('// 仅导入 composables（自定义滑块逻辑）')
+      L.push("import { useSliderState, useWebglFire } from 'vue-effort-slider/composables'")
+      L.push('')
+      L.push('// 仅导入着色器（GLSL 源码）')
+      L.push("import { VERT, FRAG_SIM, FRAG_BLUR, FRAG_COMP } from 'vue-effort-slider/shaders'")
+      L.push('')
+      L.push('// 导入完整组件')
+      L.push("import { EffortSlider } from 'vue-effort-slider'")
+      L.push("import 'vue-effort-slider/style.css'")
+      return L.join('\n')
+    }
+
     /* ---- helpers ---- */
     const field = (lbl, ...kids) => h('div', { class: 'field' }, [
       h('div', { class: 'field-label' }, lbl),
@@ -585,7 +601,7 @@
       { key: 'code', label: '代码', build: () => [
         h('div', { class: 'code-strip' }, [
           h('div', { class: 'code-head' }, [
-            h('span', { class: 'code-head-title' }, 'Vue 3 — 生成的代码'),
+            h('span', { class: 'code-head-title' }, '完整组件 — 模板 + 脚本'),
             h('button', {
               class: 'copy-btn',
               onClick() {
@@ -597,6 +613,21 @@
             }, '复制')
           ]),
           h('pre', { id: 'code-pre', innerHTML: highlight(genCode()) })
+        ]),
+        h('div', { class: 'code-strip' }, [
+          h('div', { class: 'code-head' }, [
+            h('span', { class: 'code-head-title' }, '子模块 — 按需导入'),
+            h('button', {
+              class: 'copy-btn',
+              onClick() {
+                navigator.clipboard.writeText(genSubCode())
+                const btn = document.querySelectorAll('.copy-btn')[1]
+                btn.textContent = '已复制'
+                setTimeout(() => btn.textContent = '复制', 1500)
+              }
+            }, '复制')
+          ]),
+          h('pre', { id: 'code-sub-pre', innerHTML: highlight(genSubCode()) })
         ])
       ]},
     ]

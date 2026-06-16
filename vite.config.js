@@ -17,6 +17,7 @@ export default defineConfig({
       }
     : {
         copyPublicDir: false,
+        cssCodeSplit: false,
         lib: {
           entry: {
             'vue-effort-slider': resolve(__dirname, 'src/index.js'),

@@ -23,6 +23,8 @@ A highly customizable Vue 3 range slider component with real-time WebGL fire tra
 npm install vue-effort-slider
 ```
 
+> CSS is auto-injected — no need to import `style.css` separately.
+
 ## Quick Start from Scratch
 
 Create a new project and get running in 3 steps:
@@ -78,7 +80,6 @@ export default defineConfig({
 ```js
 import { createApp, ref } from 'vue'
 import { EffortSlider } from 'vue-effort-slider'
-import 'vue-effort-slider/style.css'
 
 const app = createApp({
   setup() {
@@ -141,7 +142,6 @@ const value = ref(75)
 <script setup>
 import { ref } from 'vue'
 import { EffortSlider } from 'vue-effort-slider'
-import 'vue-effort-slider/style.css'
 
 const value = ref(50)
 </script>
@@ -216,7 +216,6 @@ All color props accept any valid CSS color value (hex, rgb, hsl, etc.).
 <script setup>
 import { ref } from 'vue'
 import { EffortSlider } from 'vue-effort-slider'
-import 'vue-effort-slider/style.css'
 
 const value = ref(50)
 </script>
@@ -251,7 +250,6 @@ const value = ref(50)
 <script setup>
 import { ref } from 'vue'
 import { EffortSlider } from 'vue-effort-slider'
-import 'vue-effort-slider/style.css'
 
 const depth = ref(50)
 </script>
@@ -272,7 +270,6 @@ const depth = ref(50)
 <script setup>
 import { ref } from 'vue'
 import { EffortSlider } from 'vue-effort-slider'
-import 'vue-effort-slider/style.css'
 
 const value = ref(75)
 

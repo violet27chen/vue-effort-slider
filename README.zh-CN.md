@@ -23,8 +23,6 @@
 npm install vue-effort-slider
 ```
 
-> CSS 自动注入，无需手动导入 `style.css`。
-
 ## 从零开始
 
 3 步创建项目并运行：
@@ -80,6 +78,7 @@ export default defineConfig({
 ```js
 import { createApp, ref } from 'vue'
 import { EffortSlider } from 'vue-effort-slider'
+import 'vue-effort-slider/style.css'
 
 const app = createApp({
   setup() {
@@ -142,6 +141,7 @@ const value = ref(75)
 <script setup>
 import { ref } from 'vue'
 import { EffortSlider } from 'vue-effort-slider'
+import 'vue-effort-slider/style.css'
 
 const value = ref(50)
 </script>
@@ -154,6 +154,7 @@ const value = ref(50)
 ```js
 // 完整组件
 import { EffortSlider } from 'vue-effort-slider'
+import 'vue-effort-slider/style.css'
 
 // 仅 composables
 import { useSliderState, useWebglFire } from 'vue-effort-slider/composables'
@@ -216,6 +217,7 @@ import { VERT, FRAG_SIM, FRAG_BLUR, FRAG_COMP } from 'vue-effort-slider/shaders'
 <script setup>
 import { ref } from 'vue'
 import { EffortSlider } from 'vue-effort-slider'
+import 'vue-effort-slider/style.css'
 
 const value = ref(50)
 </script>
@@ -250,6 +252,7 @@ const value = ref(50)
 <script setup>
 import { ref } from 'vue'
 import { EffortSlider } from 'vue-effort-slider'
+import 'vue-effort-slider/style.css'
 
 const depth = ref(50)
 </script>
@@ -270,6 +273,7 @@ const depth = ref(50)
 <script setup>
 import { ref } from 'vue'
 import { EffortSlider } from 'vue-effort-slider'
+import 'vue-effort-slider/style.css'
 
 const value = ref(75)
 

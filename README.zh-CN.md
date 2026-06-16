@@ -23,6 +23,87 @@
 npm install vue-effort-slider
 ```
 
+## 从零开始
+
+3 步创建项目并运行：
+
+```bash
+# 1. 创建项目
+mkdir my-slider && cd my-slider
+npm init -y
+npm install vue vue-effort-slider
+npm install -D vite @vitejs/plugin-vue
+```
+
+创建 3 个文件：
+
+**`vite.config.js`**
+
+```js
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+export default defineConfig({
+  plugins: [vue()],
+  define: {
+    __VUE_OPTIONS_API__: true,
+    __VUE_PROD_DEVTOOLS__: false,
+    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
+  },
+})
+```
+
+**`index.html`**
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Slider</title>
+  <style>
+    body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #09090b; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="/main.js"></script>
+</body>
+</html>
+```
+
+**`main.js`**
+
+```js
+import { createApp, ref } from 'vue'
+import { EffortSlider } from 'vue-effort-slider'
+import 'vue-effort-slider/style.css'
+
+const app = createApp({
+  setup() {
+    const value = ref(75)
+    return { value }
+  },
+  template: `
+    <EffortSlider v-model="value" />
+    <p style="color:#71717a;text-align:center;margin-top:16px">当前值: {{ value }}</p>
+  `
+})
+app.component('EffortSlider', EffortSlider)
+app.mount('#app')
+```
+
+```bash
+# 2. 在 package.json 添加脚本
+#    "scripts": { "dev": "vite" }
+
+# 3. 运行
+npm run dev
+```
+
+打开 `http://localhost:5173` — 带火焰拖尾的滑块已就绪。
+
 ## 快速开始
 
 ### 全局注册

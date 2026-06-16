@@ -23,6 +23,87 @@ A highly customizable Vue 3 range slider component with real-time WebGL fire tra
 npm install vue-effort-slider
 ```
 
+## Quick Start from Scratch
+
+Create a new project and get running in 3 steps:
+
+```bash
+# 1. Create project
+mkdir my-slider && cd my-slider
+npm init -y
+npm install vue vue-effort-slider
+npm install -D vite @vitejs/plugin-vue
+```
+
+Create 3 files:
+
+**`vite.config.js`**
+
+```js
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+export default defineConfig({
+  plugins: [vue()],
+  define: {
+    __VUE_OPTIONS_API__: true,
+    __VUE_PROD_DEVTOOLS__: false,
+    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
+  },
+})
+```
+
+**`index.html`**
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Slider</title>
+  <style>
+    body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #09090b; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="/main.js"></script>
+</body>
+</html>
+```
+
+**`main.js`**
+
+```js
+import { createApp, ref } from 'vue'
+import { EffortSlider } from 'vue-effort-slider'
+import 'vue-effort-slider/style.css'
+
+const app = createApp({
+  setup() {
+    const value = ref(75)
+    return { value }
+  },
+  template: `
+    <EffortSlider v-model="value" />
+    <p style="color:#71717a;text-align:center;margin-top:16px">当前值: {{ value }}</p>
+  `
+})
+app.component('EffortSlider', EffortSlider)
+app.mount('#app')
+```
+
+```bash
+# 2. Add script to package.json
+#    "scripts": { "dev": "vite" }
+
+# 3. Run
+npm run dev
+```
+
+Open `http://localhost:5173` — the slider with fire trail is live.
+
 ## Quick Start
 
 ### Global Registration

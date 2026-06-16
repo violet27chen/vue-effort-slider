@@ -406,76 +406,81 @@
   <div id="app"></div>
 
   <script type="module">
-    import { createApp, reactive, ref, h, nextTick, toRef } from 'vue'
+    import { createApp, reactive, ref, computed, watch, h, nextTick, toRef } from 'vue'
     import EffortSlider from './src/components/EffortSlider.vue'
     import { useWebglFire } from './src/components/composables/useWebglFire.js'
 
     /* ---- i18n ---- */
-    const isEn = navigator.language.startsWith('en')
-    const T = {
-      pageTitle:      isEn ? 'Vue Effort Slider — Config' : 'Vue Effort Slider — 组件配置',
-      livePreview:    isEn ? 'Live Preview' : '实时预览',
-      fullComponent:  isEn ? 'Component' : '完整组件',
-      fireEffect:     isEn ? 'Fire Effect' : '火焰效果',
-      componentConfig:isEn ? 'Component Config' : '组件配置',
-      fireConfig:     isEn ? 'Fire Config' : '火焰配置',
-      adjustParams:   isEn ? 'Adjust parameters, preview in real time' : '调整参数，实时预览效果',
+    const isEn = ref(navigator.language.startsWith('en'))
+    const T = computed(() => ({
+      get pageTitle()      { return isEn.value ? 'Vue Effort Slider — Config' : 'Vue Effort Slider — 组件配置' },
+      get livePreview()    { return isEn.value ? 'Live Preview' : '实时预览' },
+      get fullComponent()  { return isEn.value ? 'Component' : '完整组件' },
+      get fireEffect()     { return isEn.value ? 'Fire Effect' : '火焰效果' },
+      get componentConfig(){ return isEn.value ? 'Component Config' : '组件配置' },
+      get fireConfig()     { return isEn.value ? 'Fire Config' : '火焰配置' },
+      get adjustParams()   { return isEn.value ? 'Adjust parameters, preview in real time' : '调整参数，实时预览效果' },
       // nav tabs
-      tabBasic:   isEn ? 'Basic' : '基础',
-      tabLabel:   isEn ? 'Label' : '标签',
-      tabEndPt:   isEn ? 'Endpoints' : '端点',
-      tabGear:    isEn ? 'Gears' : '挡位',
-      tabHelp:    isEn ? 'Help' : '帮助',
-      tabStyle:   isEn ? 'Style' : '外观',
-      tabCode:    isEn ? 'Code' : '代码',
-      tabFire:    isEn ? 'Fire' : '火焰',
+      get tabBasic()   { return isEn.value ? 'Basic' : '基础' },
+      get tabLabel()   { return isEn.value ? 'Label' : '标签' },
+      get tabEndPt()   { return isEn.value ? 'Endpoints' : '端点' },
+      get tabGear()    { return isEn.value ? 'Gears' : '挡位' },
+      get tabHelp()    { return isEn.value ? 'Help' : '帮助' },
+      get tabStyle()   { return isEn.value ? 'Style' : '外观' },
+      get tabCode()    { return isEn.value ? 'Code' : '代码' },
+      get tabFire()    { return isEn.value ? 'Fire' : '火焰' },
       // basic
-      basicSet:  isEn ? 'Basic Settings' : '基础设置',
-      curVal:    isEn ? 'Value' : '当前值',
-      width:     isEn ? 'Width' : '宽度',
-      posX:      isEn ? 'Position X' : '位置 X',
-      posY:      isEn ? 'Position Y' : '位置 Y',
-      radius:    isEn ? 'Radius' : '圆角',
-      thresh:    isEn ? 'Threshold' : '阈值',
+      get basicSet()  { return isEn.value ? 'Basic Settings' : '基础设置' },
+      get curVal()    { return isEn.value ? 'Value' : '当前值' },
+      get width()     { return isEn.value ? 'Width' : '宽度' },
+      get posX()      { return isEn.value ? 'Position X' : '位置 X' },
+      get posY()      { return isEn.value ? 'Position Y' : '位置 Y' },
+      get radius()    { return isEn.value ? 'Radius' : '圆角' },
+      get thresh()    { return isEn.value ? 'Threshold' : '阈值' },
       // label
-      lbl:       isEn ? 'Label' : '标签',
-      lblText:   isEn ? 'Label Text' : '标签文字',
+      get lbl()       { return isEn.value ? 'Label' : '标签' },
+      get lblText()   { return isEn.value ? 'Label Text' : '标签文字' },
       // endpoint
-      endTxt:    isEn ? 'Endpoint Text' : '端点文字',
-      left:      isEn ? 'Left' : '左侧',
-      right:     isEn ? 'Right' : '右侧',
-      color:     isEn ? 'Color' : '颜色',
+      get endTxt()    { return isEn.value ? 'Endpoint Text' : '端点文字' },
+      get left()      { return isEn.value ? 'Left' : '左侧' },
+      get right()     { return isEn.value ? 'Right' : '右侧' },
+      get color()     { return isEn.value ? 'Color' : '颜色' },
       // gear
-      gear:      isEn ? 'Gears' : '挡位',
-      gearName:  isEn ? 'Gear Names' : '挡位名称',
-      fullClr:   isEn ? 'Active Text' : '满挡文字色',
-      thumbClr:  isEn ? 'Thumb' : '滑块色',
-      trackClr:  isEn ? 'Track' : '轨道色',
-      dotClr:    isEn ? 'Dots' : '圆点色',
-      hiClr:     isEn ? 'Highlight' : '高亮色',
-      trailClr:  isEn ? 'Trail' : '拖尾色',
+      get gear()      { return isEn.value ? 'Gears' : '挡位' },
+      get gearName()  { return isEn.value ? 'Gear Names' : '挡位名称' },
+      get fullClr()   { return isEn.value ? 'Active Text' : '满挡文字色' },
+      get thumbClr()  { return isEn.value ? 'Thumb' : '滑块色' },
+      get trackClr()  { return isEn.value ? 'Track' : '轨道色' },
+      get dotClr()    { return isEn.value ? 'Dots' : '圆点色' },
+      get hiClr()     { return isEn.value ? 'Highlight' : '高亮色' },
+      get trailClr()  { return isEn.value ? 'Trail' : '拖尾色' },
       // help
-      showHelp:  isEn ? 'Show Help' : '显示帮助',
-      enabled:   isEn ? 'On' : '启用',
-      helpTxt:   isEn ? 'Help Text' : '帮助文字',
+      get showHelp()  { return isEn.value ? 'Show Help' : '显示帮助' },
+      get enabled()   { return isEn.value ? 'On' : '启用' },
+      get helpTxt()   { return isEn.value ? 'Help Text' : '帮助文字' },
       // style
-      appearance:isEn ? 'Style' : '外观',
-      bgClr:     isEn ? 'Background' : '背景色',
+      get appearance(){ return isEn.value ? 'Style' : '外观' },
+      get bgClr()     { return isEn.value ? 'Background' : '背景色' },
       // code
-      codeFull:  isEn ? 'Component — Template + Script' : '完整组件 — 模板 + 脚本',
-      codeSub:   isEn ? 'Sub-modules — Tree-shakable' : '子模块 — 按需导入',
-      codeFire:  isEn ? 'Fire Module — useWebglFire' : '子模块火焰 — useWebglFire',
-      copy:      isEn ? 'Copy' : '复制',
-      copied:    isEn ? 'Copied!' : '已复制',
+      get codeFull()  { return isEn.value ? 'Component — Template + Script' : '完整组件 — 模板 + 脚本' },
+      get codeSub()   { return isEn.value ? 'Sub-modules — Tree-shakable' : '子模块 — 按需导入' },
+      get codeFire()  { return isEn.value ? 'Fire Module — useWebglFire' : '子模块火焰 — useWebglFire' },
+      get copy()      { return isEn.value ? 'Copy' : '复制' },
+      get copied()    { return isEn.value ? 'Copied!' : '已复制' },
       // fire
-      fireSet:   isEn ? 'Fire Settings' : '火焰设置',
-      fireOn:    isEn ? 'Enable' : '开启',
-      sliderVal: isEn ? 'Slider Value' : '滑块值',
-      fireClr:   isEn ? 'Fire Color' : '火焰色',
+      get fireSet()   { return isEn.value ? 'Fire Settings' : '火焰设置' },
+      get fireOn()    { return isEn.value ? 'Enable' : '开启' },
+      get sliderVal() { return isEn.value ? 'Slider Value' : '滑块值' },
+      get fireClr()   { return isEn.value ? 'Fire Color' : '火焰色' },
       // preview info
-      fireInfo:  v => isEn ? `slider: ${v} (>=95 active) | active:` : `slider: ${v} (>=95 有火焰) | active:`,
+      fireInfo(v) { return isEn.value ? `slider: ${v} (>=95 active) | active:` : `slider: ${v} (>=95 有火焰) | active:` },
+    }))
+
+    function toggleLang() {
+      isEn.value = !isEn.value
+      document.title = T.value.pageTitle
+      nextTick(paintCode)
     }
-    document.title = T.pageTitle
 
     const S = reactive({
       modelValue: 75,
@@ -664,26 +669,26 @@
 
     /* ---- section builders ---- */
     const fireSections = [
-      { key: 'fire', label: T.tabFire, build: () => [
-        strip(T.fireSet,
-          field(T.fireOn, chk('fireActive', T.enabled)),
-          field(T.sliderVal, num('fireSliderValue', 0, 100)),
-          field(T.fireClr, clr('trailColor')),
+      { key: 'fire', label: T.value.tabFire, build: () => [
+        strip(T.value.fireSet,
+          field(T.value.fireOn, chk('fireActive', T.value.enabled)),
+          field(T.value.sliderVal, num('fireSliderValue', 0, 100)),
+          field(T.value.fireClr, clr('trailColor')),
         ),
       ]},
-      { key: 'fire-code', label: T.tabCode, build: () => [
+      { key: 'fire-code', label: T.value.tabCode, build: () => [
         h('div', { class: 'code-strip' }, [
           h('div', { class: 'code-head' }, [
-            h('span', { class: 'code-head-title' }, T.codeFire),
+            h('span', { class: 'code-head-title' }, T.value.codeFire),
             h('button', {
               class: 'copy-btn',
               onClick() {
                 navigator.clipboard.writeText(genFireCode())
                 const btn = document.querySelector('.copy-btn')
-                btn.textContent = T.copied
-                setTimeout(() => btn.textContent = T.copy, 1500)
+                btn.textContent = T.value.copied
+                setTimeout(() => btn.textContent = T.value.copy, 1500)
               }
-            }, T.copy)
+            }, T.value.copy)
           ]),
           h('pre', { id: 'code-pre', innerHTML: highlight(genFireCode()) })
         ])
@@ -691,41 +696,41 @@
     ]
 
     const sections = [
-      { key: 'basic', label: T.tabBasic, build: () => [
-        strip(T.basicSet,
-          field(T.curVal, num('modelValue', 0, 100)),
-          field(T.width, num('width', 200, 600)),
-          field(T.posX, num('x', -200, 200)),
-          field(T.posY, num('y', -200, 200)),
-          field(T.radius, num('borderRadius', 0, 50)),
-          field(T.thresh, num('threshold', 0, 100)),
+      { key: 'basic', label: T.value.tabBasic, build: () => [
+        strip(T.value.basicSet,
+          field(T.value.curVal, num('modelValue', 0, 100)),
+          field(T.value.width, num('width', 200, 600)),
+          field(T.value.posX, num('x', -200, 200)),
+          field(T.value.posY, num('y', -200, 200)),
+          field(T.value.radius, num('borderRadius', 0, 50)),
+          field(T.value.thresh, num('threshold', 0, 100)),
         ),
       ]},
-      { key: 'label', label: T.tabLabel, build: () => [
-        strip(T.lbl,
-          field(T.lblText, txt('label'), sep(), clr('labelColor')),
+      { key: 'label', label: T.value.tabLabel, build: () => [
+        strip(T.value.lbl,
+          field(T.value.lblText, txt('label'), sep(), clr('labelColor')),
         ),
       ]},
-      { key: 'endpoint', label: T.tabEndPt, build: () => [
-        strip(T.endTxt,
-          field(T.left,
+      { key: 'endpoint', label: T.value.tabEndPt, build: () => [
+        strip(T.value.endTxt,
+          field(T.value.left,
             h('input', {
               type: 'text', value: S.scaleLabels[0],
               onInput(e) { S.scaleLabels[0] = e.target.value; paintCode() }
             }),
           ),
-          field(T.right,
+          field(T.value.right,
             h('input', {
               type: 'text', value: S.scaleLabels[1],
               onInput(e) { S.scaleLabels[1] = e.target.value; paintCode() }
             }),
           ),
-          field(T.color, clr('scaleLabelColor')),
+          field(T.value.color, clr('scaleLabelColor')),
         ),
       ]},
-      { key: 'gear', label: T.tabGear, build: () => [
-        strip(T.gear,
-          field(T.gearName,
+      { key: 'gear', label: T.value.tabGear, build: () => [
+        strip(T.value.gear,
+          field(T.value.gearName,
             h('div', { class: 'status-grid' }, Object.keys(S.statusLabels).map(k =>
               h('input', {
                 type: 'text', value: S.statusLabels[k],
@@ -734,53 +739,53 @@
             )),
             sep(), clr('statusColor')
           ),
-          field(T.fullClr, clr('activeColor')),
-          field(T.thumbClr, clr('thumbColor')),
-          field(T.trackClr, clr('trackColor')),
-          field(T.dotClr, clr('dotColor')),
-          field(T.hiClr, clr('highlightColor')),
-          field(T.trailClr, clr('trailColor')),
+          field(T.value.fullClr, clr('activeColor')),
+          field(T.value.thumbClr, clr('thumbColor')),
+          field(T.value.trackClr, clr('trackColor')),
+          field(T.value.dotClr, clr('dotColor')),
+          field(T.value.hiClr, clr('highlightColor')),
+          field(T.value.trailClr, clr('trailColor')),
         ),
       ]},
-      { key: 'help', label: T.tabHelp, build: () => [
-        strip(T.tabHelp,
-          field(T.showHelp, chk('showHelp', T.enabled), sep(), clr('helpIconColor')),
-          field(T.helpTxt, txt('helpText')),
+      { key: 'help', label: T.value.tabHelp, build: () => [
+        strip(T.value.tabHelp,
+          field(T.value.showHelp, chk('showHelp', T.value.enabled), sep(), clr('helpIconColor')),
+          field(T.value.helpTxt, txt('helpText')),
         ),
       ]},
-      { key: 'style', label: T.tabStyle, build: () => [
-        strip(T.appearance,
-          field(T.bgClr, clr('background'), txt('background', '80px')),
+      { key: 'style', label: T.value.tabStyle, build: () => [
+        strip(T.value.appearance,
+          field(T.value.bgClr, clr('background'), txt('background', '80px')),
         ),
       ]},
-      { key: 'code', label: T.tabCode, build: () => [
+      { key: 'code', label: T.value.tabCode, build: () => [
         h('div', { class: 'code-strip' }, [
           h('div', { class: 'code-head' }, [
-            h('span', { class: 'code-head-title' }, T.codeFull),
+            h('span', { class: 'code-head-title' }, T.value.codeFull),
             h('button', {
               class: 'copy-btn',
               onClick() {
                 navigator.clipboard.writeText(genCode())
                 const btn = document.querySelector('.copy-btn')
-                btn.textContent = T.copied
-                setTimeout(() => btn.textContent = T.copy, 1500)
+                btn.textContent = T.value.copied
+                setTimeout(() => btn.textContent = T.value.copy, 1500)
               }
-            }, T.copy)
+            }, T.value.copy)
           ]),
           h('pre', { id: 'code-pre', innerHTML: highlight(genCode()) })
         ]),
         h('div', { class: 'code-strip' }, [
           h('div', { class: 'code-head' }, [
-            h('span', { class: 'code-head-title' }, T.codeSub),
+            h('span', { class: 'code-head-title' }, T.value.codeSub),
             h('button', {
               class: 'copy-btn',
               onClick() {
                 navigator.clipboard.writeText(genSubCode())
                 const btn = document.querySelectorAll('.copy-btn')[1]
-                btn.textContent = T.copied
-                setTimeout(() => btn.textContent = T.copy, 1500)
+                btn.textContent = T.value.copied
+                setTimeout(() => btn.textContent = T.value.copy, 1500)
               }
-            }, T.copy)
+            }, T.value.copy)
           ]),
           h('pre', { id: 'code-sub-pre', innerHTML: highlight(genSubCode()) })
         ])
@@ -798,7 +803,7 @@
 
         return () => h('div', { class: 'page' }, [
           h('div', { class: 'preview-pane' }, [
-            h('div', { class: 'preview-label' }, T.livePreview),
+            h('div', { class: 'preview-label' }, T.value.livePreview),
             h('a', {
               class: 'github-link',
               href: 'https://github.com/violet27chen/vue-effort-slider',
@@ -810,6 +815,16 @@
               ]),
               'GitHub',
             ]),
+            h('button', {
+              class: 'github-link',
+              onClick() { toggleLang() },
+              style: {
+                cursor: 'pointer',
+                position: 'absolute',
+                top: '18px',
+                right: '100px',
+              },
+            }, isEn.value ? '中文' : 'EN'),
             h('div', {
               style: {
                 display: 'flex', gap: '4px', position: 'absolute',
@@ -827,7 +842,7 @@
                   color: previewMode.value === 'component' ? '#fff' : '#a1a1a9',
                   transition: 'all 0.15s',
                 }
-              }, T.fullComponent),
+              }, T.value.fullComponent),
               h('button', {
                 onClick() { previewMode.value = 'fire'; activeTab.value = 'fire' },
                 style: {
@@ -837,7 +852,7 @@
                   color: previewMode.value === 'fire' ? '#fff' : '#a1a1a9',
                   transition: 'all 0.15s',
                 }
-              }, T.fireEffect),
+              }, T.value.fireEffect),
             ]),
             h('div', {
               style: {
@@ -874,14 +889,14 @@
                 style: 'width:100%;height:60px;border-radius:10px;background:#0c0c0c;display:block',
               }),
               h('p', { style: 'font-size:12px;color:#71717a;margin-top:8px;text-align:center' },
-                T.fireInfo(S.fireSliderValue) + ' ' + S.fireActive
+                T.value.fireInfo(S.fireSliderValue) + ' ' + S.fireActive
               ),
             ])
           ]),
           h('div', { class: 'config-pane' }, [
             h('div', { class: 'pane-header' }, [
-              h('h1', { class: 'page-title' }, previewMode.value === 'component' ? T.componentConfig : T.fireConfig),
-              h('p', { class: 'page-sub' }, T.adjustParams),
+              h('h1', { class: 'page-title' }, previewMode.value === 'component' ? T.value.componentConfig : T.value.fireConfig),
+              h('p', { class: 'page-sub' }, T.value.adjustParams),
             ]),
 
             h('nav', { class: 'nav' },

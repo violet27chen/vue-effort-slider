@@ -477,17 +477,24 @@
 
     function genSubCode() {
       const L = []
-      L.push('<!-- 子模块单独导入 -->')
-      L.push('')
-      L.push('// 仅导入 composables（自定义滑块逻辑）')
-      L.push("import { useSliderState, useWebglFire } from 'vue-effort-slider/composables'")
-      L.push('')
-      L.push('// 仅导入着色器（GLSL 源码）')
-      L.push("import { VERT, FRAG_SIM, FRAG_BLUR, FRAG_COMP } from 'vue-effort-slider/shaders'")
-      L.push('')
-      L.push('// 导入完整组件')
+      L.push('// ========================================')
+      L.push('// 完整组件')
+      L.push('// ========================================')
       L.push("import { EffortSlider } from 'vue-effort-slider'")
       L.push("import 'vue-effort-slider/style.css'")
+      L.push('')
+      L.push('// ========================================')
+      L.push('// 按需导入子模块')
+      L.push('// ========================================')
+      L.push('')
+      L.push('// 滑块状态管理')
+      L.push("import { useSliderState } from 'vue-effort-slider/composables'")
+      L.push('')
+      L.push('// WebGL 火焰引擎')
+      L.push("import { useWebglFire } from 'vue-effort-slider/composables'")
+      L.push('')
+      L.push('// GLSL 着色器源码')
+      L.push("import { VERT, FRAG_SIM, FRAG_BLUR, FRAG_COMP } from 'vue-effort-slider/shaders'")
       return L.join('\n')
     }
 

@@ -1,7 +1,7 @@
 # vue-effort-slider
 
 [![npm version](https://img.shields.io/npm/v/vue-effort-slider.svg)](https://www.npmjs.com/package/vue-effort-slider)
-[![license](https://img.shields.io/npm/l/vue-effort-slider.svg)](https://opensource.org/licenses/MIT)
+[![license](https://img.shields.io/npm/l/vue-effort-slider.svg)](./LICENSE)
 
 [English](./README.md) | [中文](./README.zh-CN.md)
 

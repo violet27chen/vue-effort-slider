@@ -690,7 +690,7 @@
               }
             }, T.value.copy)
           ]),
-          h('pre', { id: 'code-pre', innerHTML: highlight(genFireCode()) })
+          h('pre', { id: 'code-pre' })
         ])
       ]},
     ]
@@ -772,7 +772,7 @@
               }
             }, T.value.copy)
           ]),
-          h('pre', { id: 'code-pre', innerHTML: highlight(genCode()) })
+          h('pre', { id: 'code-pre' })
         ]),
         h('div', { class: 'code-strip' }, [
           h('div', { class: 'code-head' }, [
@@ -787,7 +787,7 @@
               }
             }, T.value.copy)
           ]),
-          h('pre', { id: 'code-sub-pre', innerHTML: highlight(genSubCode()) })
+          h('pre', { id: 'code-sub-pre' })
         ])
       ]},
     ]
@@ -800,6 +800,8 @@
         const fireActive = toRef(S, 'fireActive')
         const fireSliderValue = toRef(S, 'fireSliderValue')
         useWebglFire(fireCanvasRef, fireSliderValue, fireActive, () => S.trailColor)
+
+        nextTick(paintCode)
 
         return () => h('div', { class: 'page' }, [
           h('div', { class: 'preview-pane' }, [
@@ -920,8 +922,8 @@
 
     root.mount('#app')
 
-    function highlight(code) {
-      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    function highlightToDOM(code, el) {
+      el.textContent = ''
       const KW = /\b(import|from|const|ref|setup)\b/
       const TAG = /(&lt;\/?)(\w[\w-]*)/
       const ATTR = /([\w-]+)(=)/
@@ -929,43 +931,84 @@
       const STR_S = /'(?:[^'\\]|\\.)*'/
       const NUM = /\b\d+\b/
 
-      return code.split('\n').map(line => {
-        let e = esc(line)
-        if (e.trim().startsWith('&lt;!--')) return `<span class="cmt">${e}</span>`
+      const lines = code.split('\n')
+      lines.forEach((line, li) => {
+        if (li > 0) el.appendChild(document.createTextNode('\n'))
+        const e = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
-        /* step 1: extract strings, protect with placeholders */
-        const strs = []
-        const parts = []
+        if (e.trim().startsWith('&lt;!--')) {
+          const sp = document.createElement('span')
+          sp.className = 'cmt'
+          sp.textContent = e
+          el.appendChild(sp)
+          return
+        }
+
+        /* extract strings first */
+        const tokens = []
         let rest = e
         while (rest) {
-          let m = rest.match(STR_D) || rest.match(STR_S)
+          const m = rest.match(STR_D) || rest.match(STR_S)
           if (m && m.index === 0) {
-            strs.push(m[0])
-            parts.push(`\x00S${strs.length - 1}\x00`)
+            tokens.push({ type: 'str', text: m[0] })
             rest = rest.slice(m[0].length)
           } else if (m) {
-            parts.push(colorize(rest.slice(0, m.index)))
-            strs.push(m[0])
-            parts.push(`\x00S${strs.length - 1}\x00`)
+            tokens.push(...colorizeTokens(rest.slice(0, m.index)))
+            tokens.push({ type: 'str', text: m[0] })
             rest = rest.slice(m.index + m[0].length)
           } else {
-            parts.push(colorize(rest))
+            tokens.push(...colorizeTokens(rest))
             rest = ''
           }
         }
 
-        /* step 2: restore strings */
-        let result = parts.join('')
-        strs.forEach((s, i) => { result = result.replace(`\x00S${i}\x00`, `<span class="str">${s}</span>`) })
-        return result
-      }).join('\n')
+        tokens.forEach(t => {
+          const sp = document.createElement('span')
+          if (t.cls) sp.className = t.cls
+          sp.textContent = t.text
+          el.appendChild(sp)
+        })
+      })
 
-      function colorize(s) {
-        s = s.replace(TAG, '$1<span class="tag">$2</span>')
-        s = s.replace(ATTR, '<span class="attr">$1</span>$2')
-        s = s.replace(KW, '<span class="kw">$1</span>')
-        s = s.replace(NUM, '<span class="num">$&</span>')
-        return s
+      function colorizeTokens(s) {
+        const out = []
+        let r = s
+        while (r) {
+          let m = r.match(TAG)
+          if (m && m.index === 0) {
+            out.push({ text: m[1] }, { cls: 'tag', text: m[2] })
+            r = r.slice(m[0].length)
+            continue
+          }
+          m = r.match(ATTR)
+          if (m && m.index === 0) {
+            out.push({ cls: 'attr', text: m[1] }, { text: m[2] })
+            r = r.slice(m[0].length)
+            continue
+          }
+          m = r.match(KW)
+          if (m && m.index === 0) {
+            out.push({ cls: 'kw', text: m[0] })
+            r = r.slice(m[0].length)
+            continue
+          }
+          m = r.match(NUM)
+          if (m && m.index === 0) {
+            out.push({ cls: 'num', text: m[0] })
+            r = r.slice(m[0].length)
+            continue
+          }
+          /* consume one char as plain text */
+          const ci = Math.min(
+            ...[TAG, ATTR, KW, NUM].map(rx => {
+              const mm = r.match(rx)
+              return mm ? mm.index : r.length
+            })
+          )
+          out.push({ text: r.slice(0, ci || 1) })
+          r = r.slice(ci || 1)
+        }
+        return out
       }
     }
 
@@ -973,15 +1016,14 @@
       const el = document.getElementById('code-pre')
       if (el) {
         const code = previewMode.value === 'fire' ? genFireCode() : genCode()
-        el.innerHTML = highlight(code)
+        highlightToDOM(code, el)
       }
       const sub = document.getElementById('code-sub-pre')
       if (sub) {
-        sub.innerHTML = highlight(genSubCode())
+        highlightToDOM(genSubCode(), sub)
       }
     }
 
-    paintCode()
   </script>
 </body>
 </html>

@@ -925,7 +925,7 @@
     function highlightToDOM(code, el) {
       el.textContent = ''
       const KW = /\b(import|from|const|ref|setup)\b/
-      const TAG = /(&lt;\/?)(\w[\w-]*)/
+      const TAG = /(<\/?)(\w[\w-]*)/
       const ATTR = /([\w-]+)(=)/
       const STR_D = /"(?:[^"\\]|\\.)*"/
       const STR_S = /'(?:[^'\\]|\\.)*'/
@@ -934,9 +934,9 @@
       const lines = code.split('\n')
       lines.forEach((line, li) => {
         if (li > 0) el.appendChild(document.createTextNode('\n'))
-        const e = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        const e = line
 
-        if (e.trim().startsWith('&lt;!--')) {
+        if (e.trim().startsWith('<!--')) {
           const sp = document.createElement('span')
           sp.className = 'cmt'
           sp.textContent = e

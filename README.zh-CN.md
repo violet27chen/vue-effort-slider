@@ -13,6 +13,12 @@
 
 <img src="public/slider.gif" alt="Demo" style="border-radius: 12px" />
 
+### 配置工具
+
+实时配置面板 — 调整每个属性并直接复制生成的代码。
+
+<img src="public/slider_27c_site.gif" alt="配置工具" style="border-radius: 12px" />
+
 ## 特性
 
 - **WebGL2 火焰拖尾** — 实时 GPU 渲染的火焰效果，滑块达到阈值时自动激活

@@ -933,22 +933,28 @@
         let e = esc(line)
         if (e.trim().startsWith('&lt;!--')) return `<span class="cmt">${e}</span>`
 
+        const strs = []
         const parts = []
         let rest = e
         while (rest) {
           let m = rest.match(STR_D) || rest.match(STR_S)
           if (m && m.index === 0) {
-            parts.push(`<span class="str">${m[0]}</span>`)
+            strs.push(m[0])
+            parts.push(`\x00S${strs.length - 1}\x00`)
             rest = rest.slice(m[0].length)
           } else if (m) {
             parts.push(colorize(rest.slice(0, m.index)))
-            rest = rest.slice(m.index)
+            strs.push(m[0])
+            parts.push(`\x00S${strs.length - 1}\x00`)
+            rest = rest.slice(m.index + m[0].length)
           } else {
             parts.push(colorize(rest))
             rest = ''
           }
         }
-        return parts.join('')
+        let result = parts.join('')
+        strs.forEach((s, i) => { result = result.replace(`\x00S${i}\x00`, `<span class="str">${s}</span>`) })
+        return result
       }).join('\n')
 
       function colorize(s) {

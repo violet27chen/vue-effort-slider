@@ -17,7 +17,7 @@
 
 实时配置面板 — 调整每个属性并直接复制生成的代码。
 
-<img src="https://cdn.jsdelivr.net/gh/violet27chen/vue-effort-slider@main/public/slider_27c_site_opt.gif" alt="配置工具" style="border-radius: 12px; max-width: 800px; width: 100%" />
+<img src="https://cdn.jsdelivr.net/gh/violet27chen/vue-effort-slider@main/public/slider_27c_site_opt.webp" alt="配置工具" style="border-radius: 12px; max-width: 800px; width: 100%" />
 
 ## 特性
 
@@ -329,9 +329,37 @@ function onHelpClicked() {
 - Vue 3.3+
 - 支持 WebGL2 的浏览器
 
-## 致谢
+## CDN 直接使用（原生 HTML）
 
-感谢 [254558/claude-range-slider](https://github.com/254558/claude-range-slider) 的开源项目。
+不需要 npm，不需要构建工具，直接在 HTML 中引入：
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue-effort-slider@1.2.3/dist/style.css">
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-effort-slider@1.2.3/dist/vue-effort-slider.umd.js"></script>
+```
+
+## 致谢与说明
+
+本项目基于 [254558/claude-range-slider](https://github.com/254558/claude-range-slider) 进行二次开发与增强。
+
+### 与原版的主要区别
+
+| 特性 | 原版 claude-range-slider | 本项目 vue-effort-slider |
+|------|--------------------------|---------------------------|
+| 框架 | 原生 JavaScript | Vue 3 专属组件 |
+| 安装 | 手动复制文件 | npm install 一键安装 |
+| 绑定 | 手动事件监听 | 标准 v-model 双向绑定 |
+| 火焰特效 | 基础 Canvas | 增强 WebGL2 四通道渲染 |
+| 在线配置 | 无 | slider.27c.site 可视化调参 |
+| 主题定制 | 3 个颜色 | 10+ 颜色全面板定制 |
+| TypeScript | 无 | 完整类型定义 |
+
+### 如何选择
+
+- 用 Vue 3 开发 → 选本项目，开箱即用
+- 用其他框架/原生 JS → 选原版，自行封装
+- 只是想试试效果 → 选本项目，5 分钟搞定
 
 ## 许可证
 

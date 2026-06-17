@@ -17,7 +17,7 @@ A highly customizable Vue 3 range slider component with real-time WebGL fire tra
 
 Live config panel — adjust every prop in real time and copy the generated code.
 
-<img src="https://cdn.jsdelivr.net/gh/violet27chen/vue-effort-slider@main/public/slider_27c_site_opt.gif" alt="Config Tool" style="border-radius: 12px; max-width: 800px; width: 100%" />
+<img src="https://cdn.jsdelivr.net/gh/violet27chen/vue-effort-slider@main/public/slider_27c_site_opt.webp" alt="Config Tool" style="border-radius: 12px; max-width: 800px; width: 100%" />
 
 ## Features
 
@@ -329,9 +329,37 @@ Requires WebGL2 support. All modern desktop and mobile browsers support WebGL2.
 - Vue 3.3+
 - WebGL2-capable browser
 
+## CDN Usage (Plain HTML)
+
+No npm, no build tools needed — just include in your HTML:
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue-effort-slider@1.2.3/dist/style.css">
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-effort-slider@1.2.3/dist/vue-effort-slider.umd.js"></script>
+```
+
 ## Acknowledgments
 
-Thanks to [254558/claude-range-slider](https://github.com/254558/claude-range-slider) for the open source inspiration.
+This project is built on top of [254558/claude-range-slider](https://github.com/254558/claude-range-slider) with enhancements.
+
+### Comparison with the Original
+
+| Feature | Original claude-range-slider | This project vue-effort-slider |
+|---------|------------------------------|--------------------------------|
+| Framework | Vanilla JavaScript | Vue 3 component |
+| Install | Manual file copy | npm install |
+| Binding | Manual event listeners | Standard v-model |
+| Fire effect | Basic Canvas | Enhanced WebGL2 4-pass rendering |
+| Online config | None | slider.27c.site visual config panel |
+| Theming | 3 colors | 10+ color props |
+| TypeScript | None | Full type definitions |
+
+### Which one to choose
+
+- Building with Vue 3 → use this project, works out of the box
+- Using another framework / vanilla JS → use the original, wrap it yourself
+- Just want to try it out → use this project, up and running in 5 minutes
 
 ## License
 

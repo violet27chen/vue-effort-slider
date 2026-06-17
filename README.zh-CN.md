@@ -7,17 +7,17 @@
 
 一个高度可定制的 Vue 3 范围滑块组件，内置实时 WebGL 火焰拖尾特效。灵感来自 Claude Code 的 Effort 滑块，支持平滑吸附动画、动态颜色主题和 GPU 加速粒子渲染。
 
-<img src="public/max.png" alt="Max" style="border-radius: 12px" />
+<img src="https://cdn.jsdelivr.net/gh/violet27chen/vue-effort-slider@main/public/max.webp" alt="Max" style="border-radius: 12px" />
 
 <br>
 
-<img src="public/slider.gif" alt="Demo" style="border-radius: 12px" />
+<img src="https://cdn.jsdelivr.net/gh/violet27chen/vue-effort-slider@main/public/slider.webp" alt="Demo" style="border-radius: 12px" />
 
 ### 配置工具
 
 实时配置面板 — 调整每个属性并直接复制生成的代码。
 
-<img src="public/slider_27c_site.gif" alt="配置工具" style="border-radius: 12px" />
+<img src="https://cdn.jsdelivr.net/gh/violet27chen/vue-effort-slider@main/public/slider_27c_site_opt.gif" alt="配置工具" style="border-radius: 12px" />
 
 ## 特性
 

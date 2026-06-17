@@ -923,7 +923,7 @@
     function highlight(code) {
       const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       const KW = /\b(import|from|const|ref|setup)\b/
-      const TAG = /^(&lt;\/?)(\w[\w-]*)/
+      const TAG = /(&lt;\/?)(\w[\w-]*)/
       const ATTR = /([\w-]+)(=)/
       const STR_D = /"(?:[^"\\]|\\.)*"/
       const STR_S = /'(?:[^'\\]|\\.)*'/
@@ -933,6 +933,7 @@
         let e = esc(line)
         if (e.trim().startsWith('&lt;!--')) return `<span class="cmt">${e}</span>`
 
+        /* step 1: extract strings, protect with placeholders */
         const strs = []
         const parts = []
         let rest = e
@@ -952,6 +953,8 @@
             rest = ''
           }
         }
+
+        /* step 2: restore strings */
         let result = parts.join('')
         strs.forEach((s, i) => { result = result.replace(`\x00S${i}\x00`, `<span class="str">${s}</span>`) })
         return result
